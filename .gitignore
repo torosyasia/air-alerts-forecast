@@ -1,0 +1,7 @@
+.venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+# large pinned upstream files are re-downloaded by airalerts.fetch
+data/raw/official_data_uk_*.csv
+data/raw/alerts_in_ua_*.csv

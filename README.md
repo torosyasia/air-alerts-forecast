@@ -15,7 +15,8 @@ Python 3.13 (перевірено на 3.13.16), залежності з заф�
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m airalerts.build   # завантажує зафіксовані знімки даних, будує data/processed/daily.csv
-.venv/bin/python -m pytest            # тести на реальних даних
+.venv/bin/python -m airalerts.features  # ознаки, відомі о 00:00 дня прогнозу (~1.5 хв)
+.venv/bin/python -m pytest            # тести на реальних даних, зокрема leakage-тести
 ```
 
 ## Дані (стан на 10.10.2026)

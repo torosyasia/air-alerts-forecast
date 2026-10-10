@@ -99,6 +99,16 @@ def build():
     return daily, records, checks
 
 
+def load_processed():
+    """Typed city_records and daily tables from data/processed (run build() first)."""
+    records = pd.read_csv(PROCESSED / "city_records.csv")
+    for c in ("started_at", "finished_at"):
+        records[c] = pd.to_datetime(records[c], utc=True, format="mixed")
+    daily = pd.read_csv(PROCESSED / "daily.csv")
+    daily["date"] = pd.to_datetime(daily.date).dt.date
+    return records, daily
+
+
 def daily_table(key, recs, imputed, parts, last_full_day):
     first, last = FIRST_DAY, last_full_day
     ms, me = iv.merge(recs.started_at, recs.finished_at)

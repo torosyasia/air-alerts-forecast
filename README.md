@@ -14,10 +14,21 @@ Python 3.13 (перевірено на 3.13.16), залежності з заф�
 (`data/raw/MANIFEST.json`); у репозиторії лежить лише знімок KMDA.
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python -m airalerts.build   # завантажує зафіксовані знімки даних, будує data/processed/daily.csv
-.venv/bin/python -m airalerts.features  # ознаки, відомі о 00:00 дня прогнозу (~1.5 хв)
-.venv/bin/python -m pytest            # тести на реальних даних, зокрема leakage-тести
+.venv/bin/python run_all.py           # усе: дані -> ціль -> ознаки -> baselines -> звіти (~2 хв)
+.venv/bin/python -m pytest            # тести на реальних даних, зокрема leakage-тести (~1.5 хв)
 ```
+Окремі кроки: `python -m airalerts.build` (дані і ціль), `python -m airalerts.features`
+(ознаки), `python -m airalerts.evaluate` (baselines).
+
+## Поточний стан (CP3): baselines на тесті 26.09–09.10.2026
+| Місто | Середнє y, год/добу | Найменший MAE | Найменший interval score | Покриття 80% (найкращий за interval score) |
+|---|---|---|---|---|
+| Київ | 9.51 | 4.30 (вчора) | 20.3 (медіана 7 днів) | 0.43 |
+| Харків | 16.57 | 2.20 (climatology28) | 13.2 (climatology28) | 0.79 |
+| Дніпро | 5.65 | 2.56 (медіана 7 днів) | 15.5 (climatology28) | 0.86 |
+
+Повні таблиці — у [reports/baselines.md](reports/baselines.md). Моделі (квантильна регресія,
+вся історія vs свіже вікно) додаються на CP4.
 
 ## Дані (стан на 10.10.2026)
 | Джерело | Останній запис у даних |

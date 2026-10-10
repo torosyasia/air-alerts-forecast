@@ -9,6 +9,9 @@
 > [reports/data_quality.md](reports/data_quality.md).
 
 ## Запуск
+Python 3.13 (перевірено на 3.13.16), залежності з зафіксованими версіями — у `requirements.txt`.
+Перший запуск завантажує ~45 МБ сирих даних із зафіксованих комітів і звіряє sha256
+(`data/raw/MANIFEST.json`); у репозиторії лежить лише знімок KMDA.
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
 .venv/bin/python -m airalerts.build   # завантажує зафіксовані знімки даних, будує data/processed/daily.csv

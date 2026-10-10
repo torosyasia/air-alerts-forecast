@@ -1,12 +1,10 @@
 {
   "official": {
-    "downloaded_at": "2026-10-10T21:57:51.213967+00:00",
     "url": "https://raw.githubusercontent.com/Vadimkin/ukrainian-air-raid-sirens-dataset/7ccd4367b7057a4541ce109ca09cf1f0220f6a75/datasets/official_data_uk.csv",
     "file": "official_data_uk_7ccd436.csv",
     "sha256": "1f50085481d229f57b624d83b1ce723e884dea409c14afb5b7040c8a2f233e4f"
   },
   "alerts_in_ua": {
-    "downloaded_at": "2026-10-10T21:57:51.776375+00:00",
     "url": "https://raw.githubusercontent.com/JustJimer/ukraine-air-alert-stats/3b0e7f1dc7e0e04e85db73f8a24b3e587d3e05ee/archive/alerts_in_ua.csv",
     "file": "alerts_in_ua_3b0e7f1.csv",
     "sha256": "e140f876e2cc3cb4160c9d65c72297747abf53e29d7cc316c05452969d682053"

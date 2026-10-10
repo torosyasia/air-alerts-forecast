@@ -26,20 +26,21 @@ SOURCES = {
         "url": "https://raw.githubusercontent.com/Vadimkin/ukrainian-air-raid-sirens-dataset/"
                f"{OFFICIAL_SHA}/datasets/official_data_uk.csv",
         "path": RAW / f"official_data_uk_{OFFICIAL_SHA[:7]}.csv",
-        "sha256": None,  # filled in on first download and recorded in data/raw/MANIFEST.json
+        "sha256": "1f50085481d229f57b624d83b1ce723e884dea409c14afb5b7040c8a2f233e4f",
     },
     # Raw alerts.in.ua API records archived daily by a GitHub Action, UTC, with alert_level.
     "alerts_in_ua": {
         "url": "https://raw.githubusercontent.com/JustJimer/ukraine-air-alert-stats/"
                f"{ARCHIVE_SHA}/archive/alerts_in_ua.csv",
         "path": RAW / f"alerts_in_ua_{ARCHIVE_SHA[:7]}.csv",
-        "sha256": None,
+        "sha256": "e140f876e2cc3cb4160c9d65c72297747abf53e29d7cc316c05452969d682053",
     },
     # Kyiv City State Administration open data, naive Kyiv local time, with level and cause.
     "kmda": {
         "url": "https://data.gov.ua/dataset/83eda433-b4d9-47ac-89a0-5868dd4d5ce6/resource/"
                "08559e6a-863f-4d9b-86c1-d23e8b8b4630/download/airalerts.json",
         "path": RAW / "kmda_airalerts_2026-10-10.json",
+        "committed": True,  # never re-downloaded by fetch; a refresh is a new dated snapshot
         "sha256": "0c9ef4fc776ef695d818127ff5d11f9a9e994acf703c063e97b89f332c07e44b",
     },
 }

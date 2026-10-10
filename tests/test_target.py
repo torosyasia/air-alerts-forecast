@@ -141,3 +141,25 @@ def test_cross_source_agreement(built):
     assert c["kyiv_kmda_vs_official"]["corr"] > 0.97
     k = c["kharkiv_official_vs_archive_overlap"]
     assert abs(k["official_h"] - k["archive_h"]) < 0.05
+
+
+def test_level_hours_add_up_to_total(built):
+    """red + yellow + none == total for every city and day (overlaps counted once, as red)."""
+    daily, _, _ = built
+    s = daily.hours_red + daily.hours_yellow + daily.hours_none
+    assert np.allclose(s, daily.hours, atol=1e-9)
+    assert (daily[["hours_red", "hours_yellow", "hours_none"]] >= -1e-9).all().all()
+
+
+def test_red_wins_where_levels_overlap(built):
+    """Real case: Kharkiv has yellow and red records of different units overlapping in time
+    (raion vs city/hromada). Summing per-level unions would exceed the total on those days."""
+    daily, records, _ = built
+    k = records[records.city == "kharkiv"]
+    d = daily[daily.city == "kharkiv"].set_index("date")
+    first, last = d.index.min(), d.index.max()
+    naive = sum(iv.hours_per_day(*iv.merge(k[k.level == l].started_at, k[k.level == l].finished_at), first, last)
+                for l in ("red", "yellow", "none"))
+    excess = naive - d.hours
+    assert (excess > 0.01).sum() > 0               # the overlap is real
+    assert np.allclose(d.hours_red + d.hours_yellow + d.hours_none, d.hours, atol=1e-9)

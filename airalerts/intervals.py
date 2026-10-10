@@ -69,3 +69,19 @@ def starts_per_day(starts, first_day, last_day):
     ok = (idx >= 0) & (idx < len(dates))
     counts = np.bincount(idx[ok], minlength=len(dates))
     return pd.Series(counts, index=pd.Index(dates, name="date"))
+
+
+def level_hours_per_day(records, first_day, last_day):
+    """Hours per day split by level with precedence red > yellow > none.
+
+    Records of different units of one city can overlap with different levels (e.g. the raion
+    on yellow while the city is on red). Overlapping time is counted once, as the most severe
+    level, so hours_red + hours_yellow + hours_none == total hours for every day.
+    """
+    def h(mask):
+        r = records[mask]
+        return hours_per_day(*merge(r.started_at, r.finished_at), first_day, last_day)
+    red = h(records.level == "red")
+    red_yellow = h(records.level.isin(["red", "yellow"]))
+    total = h(records.level.notna())
+    return {"red": red, "yellow": red_yellow - red, "none": total - red_yellow}

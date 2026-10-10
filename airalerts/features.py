@@ -49,10 +49,7 @@ def features_at(records, day):
     hours = iv.hours_per_day(ms, me, first, last).to_numpy()[::-1]   # hours[0] = day D-1
     es, _ = iv.merge(h.started_at, h.finished_at, gap_s=EPISODE_GAP_S)
     eps = iv.starts_per_day(es, first, last).to_numpy()[::-1]
-    lvl = {}
-    for name in ("yellow", "red"):
-        r = h[h.level == name]
-        lvl[name] = iv.hours_per_day(*iv.merge(r.started_at, r.finished_at), last, last).iloc[0]
+    lvl = {k: v.iloc[0] for k, v in iv.level_hours_per_day(h, last, last).items()}  # red > yellow
 
     f = {f"h_lag{k}": hours[k - 1] for k in range(1, 8)}
     f["h_mean7"] = hours[:7].mean()
@@ -66,8 +63,8 @@ def features_at(records, day):
     t0_64 = t0.to_datetime64()
     running = h[h.ongoing_at_t0]
     f["active_t0"] = float(len(running) > 0)
-    f["active_yellow_t0"] = float((running.level == "yellow").any())
     f["active_red_t0"] = float((running.level == "red").any())
+    f["active_yellow_t0"] = float((running.level == "yellow").any() and not f["active_red_t0"])
     # start of the merged episode that is still running at t0 (merge cannot move a start
     # earlier using records that begin after t0, because those are not in the history)
     run = (ms < t0_64) & (me >= t0_64)  # the merged episode covering t0

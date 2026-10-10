@@ -114,9 +114,8 @@ def daily_table(key, recs, imputed, parts, last_full_day):
     ms, me = iv.merge(recs.started_at, recs.finished_at)
     out = pd.DataFrame({"hours": iv.hours_per_day(ms, me, first, last)})
     out["day_len_h"] = iv.day_lengths(first, last)
-    for lvl in ("none", "yellow", "red"):
-        r = recs[recs.level == lvl]
-        out[f"hours_{lvl}"] = iv.hours_per_day(*iv.merge(r.started_at, r.finished_at), first, last)
+    for lvl, hrs in iv.level_hours_per_day(recs, first, last).items():  # red > yellow > none
+        out[f"hours_{lvl}"] = hrs
     es, _ = iv.merge(recs.started_at, recs.finished_at, gap_s=EPISODE_GAP_S)
     out["n_episodes"] = iv.starts_per_day(es, first, last)
     # source used for each day (by the day's midnight)

@@ -14,25 +14,23 @@ Python 3.13 (перевірено на 3.13.16), залежності з заф�
 (`data/raw/MANIFEST.json`); у репозиторії лежить лише знімок KMDA.
 ```bash
 python -m venv .venv && .venv/bin/pip install -r requirements.txt
-.venv/bin/python run_all.py           # усе: дані -> ціль -> ознаки -> baselines -> звіти (~2 хв)
+.venv/bin/python run_all.py           # усе: дані -> ціль -> ознаки -> baselines -> моделі -> звіти (~3 хв)
 .venv/bin/python -m pytest            # тести на реальних даних, зокрема leakage-тести (~1.5 хв)
 ```
 Окремі кроки: `python -m airalerts.build` (дані і ціль), `python -m airalerts.features`
-(ознаки), `python -m airalerts.evaluate` (baselines).
+(ознаки), `python -m airalerts.evaluate` (baselines), `python -m airalerts.models` (моделі).
 
-## Поточний стан (CP3): baselines на тесті 26.09–09.10.2026
-| Місто | Середнє y, год/добу | Найменший MAE | Найменший interval score | Покриття 80% (найкращий за interval score) |
+## Поточний стан (CP4): тест 26.09–09.10.2026, 3 міста × 14 днів
+| Метод | MAE, год | Покриття 80% | Ширина, год | Interval score |
 |---|---|---|---|---|
-| Київ | 9.51 | 4.30 (вчора) | 20.3 (медіана 7 днів) | 0.43 |
-| Харків | 16.57 | 2.20 (climatology28) | 13.2 (climatology28) | 0.79 |
-| Дніпро | 5.65 | 2.56 (медіана 7 днів) | 15.5 (climatology28) | 0.86 |
+| найкращий baseline за MAE (`climatology28`) | 3.44 | 0.88 | 12.53 | 17.41 |
+| найкращий baseline за IS (`median7`) | 3.69 | 0.83 | 12.63 | 16.75 |
+| **квантильна регресія, вся історія** (обрана на валідації) | **3.23** | 0.81 | 10.55 | **15.19** |
+| квантильна регресія, свіже вікно 84 дні + CQR | 3.08 | 0.88 | 12.57 | 16.35 |
 
-Повні таблиці — у [reports/baselines.md](reports/baselines.md). Моделі (квантильна регресія,
-вся історія vs свіже вікно) додаються на CP4.
-
-## Дані (стан на 10.10.2026)
-| Джерело | Останній запис у даних |
-|---|---|
-| KMDA, data.gov.ua (м. Київ, рівні і причини загроз) | 2026-10-04 23:32 за Києвом |
-| Офіційний Telegram-канал @air_alert_ua (через Vadimkin/ukrainian-air-raid-sirens-dataset) | 2026-09-07 05:28 UTC |
-| alerts.in.ua (через JustJimer/ukraine-air-alert-stats) | 2026-10-10 09:50 UTC |
+Модель краща за найкращий baseline за обома метриками, і її покриття близьке до 80%. Але
+95% bootstrap-інтервали різниць містять 0 (MAE −0.21 [−0.54, +0.16], IS −1.56 [−4.31, +2.24]),
+тож на 14 днях перевага статистично не доведена. По містах: Дніпро — краще за обома
+метриками, Київ — тільки за IS, Харків — за жодною. Деталі — у
+[reports/models.md](reports/models.md), обґрунтування — у DECISIONS D-17a і D-18. Таблиці
+метрик — у `results/metrics_validation_test.csv`, ціль по днях — у `results/daily_target.csv`.

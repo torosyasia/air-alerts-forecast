@@ -302,10 +302,10 @@ def fig_events(ev):
     ax.set_yticks(range(len(cats)), [f"{lab} (n={int(ev[(ev.city == 'kyiv') & (ev.category == c)].n_events.iloc[0])})"
                                      for c, lab in cats])
     ax.invert_yaxis()
-    ax.set_xlabel("надлишок годин тривоги на добу у вікні [−1; +3] дні (95% інтервал з плацебо)")
+    ax.set_xlabel("надлишок годин тривоги на добу у вікні [−1; +3] дні (95% смуга плацебо)")
     ax.legend(loc="lower right")
     crosses = ((ev.excess_ci95_lo <= 0) & (ev.excess_ci95_hi >= 0)).all()
-    ax.set_title("Чи більше тривог навколо подій?  " + ("Ні: усі інтервали перетинають нуль" if crosses
+    ax.set_title("Чи більше тривог навколо подій?  " + ("Надлишку не виявлено: усі смуги перетинають нуль" if crosses
                  else "Є інтервали, що не перетинають нуль — див. reports/events.md"))
     save(fig, "fig8_events.png")
 

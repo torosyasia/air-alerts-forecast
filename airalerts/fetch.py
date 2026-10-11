@@ -71,7 +71,12 @@ def fetch_latest():
             if not path.exists():
                 print(f"[fetch --latest] {name}: {url}")
                 download(url, path)
-            new[name] = {"url": url, "file": path.name, "sha256": sha256(path), "version": ver}
+            digest = sha256(path)
+            if digest == old[name]["sha256"] and path.name != old[name]["file"]:
+                path.unlink()               # same content as the pinned file: keep the old pin
+                new[name] = old[name]
+                continue
+            new[name] = {"url": url, "file": path.name, "sha256": digest, "version": ver}
             if spec.get("committed"):
                 new[name]["committed"] = True
         except Exception as exc:  # keep the previous pin rather than failing the whole run

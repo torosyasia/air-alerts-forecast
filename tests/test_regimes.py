@@ -22,9 +22,11 @@ def test_missing_days_are_left_out(built):
     daily, records, _ = built
     cp, _ = detect(daily, cities=("kharkiv",))
     assert np.isfinite(cp.log10_BF_change_vs_none).all()
-    r = compare_periods(daily, records, "kharkiv", pd.Timestamp("2026-08-27").date())
-    # 44 calendar days after the cut, 5 of them missing (29.08-02.09)
-    assert r["days_after"] == 39
+    cut = pd.Timestamp("2026-08-27").date()
+    r = compare_periods(daily, records, "kharkiv", cut)
+    k = daily[(daily.city == "kharkiv") & (daily.date >= cut)]
+    # calendar days after the cut minus the 5 missing days (29.08-02.09)
+    assert r["days_after"] == len(k) - 5 == (~k.missing).sum()
 
 
 def test_event_window_skips_missing_days(built):

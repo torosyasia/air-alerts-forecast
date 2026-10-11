@@ -52,6 +52,7 @@ def main():
     step("figures", run_figures)
     step("README auto blocks", lambda: readme.update_blocks({
         "FORECAST": forecast.markdown(fc), "DATA": forecast.data_markdown(),
+        "RESULTS": forecast.results_markdown(),
         "FACTS": stats.markdown(stats.main())}))
     print("[run_all] done: results/, reports/, figures/, README blocks")
 

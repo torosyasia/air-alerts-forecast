@@ -11,7 +11,7 @@ import pandas as pd
 import pytest
 
 from airalerts import intervals as iv
-from airalerts.config import CITIES, SOURCES, TZ
+from airalerts.config import CITIES, TZ, source_path
 from airalerts.sources import load_official
 
 
@@ -65,7 +65,7 @@ def test_union_matches_second_grid(built, city):
 def test_alert_across_midnight_is_split(built):
     """KMDA uid 2402 (red, 'Ракетна загроза') runs 2026-09-07 19:39:27 -> 09-08 05:40:43 local."""
     daily, _, _ = built
-    raw = pd.DataFrame(json.loads(SOURCES["kmda"]["path"].read_text(encoding="utf-8"))).set_index("uid")
+    raw = pd.DataFrame(json.loads(source_path("kmda").read_text(encoding="utf-8"))).set_index("uid")
     def h(uid, lo=None, hi=None):
         s, e = pd.Timestamp(raw.dateTimeStart[uid]), pd.Timestamp(raw.dateTimeEnd[uid])
         s, e = max(s, lo) if lo else s, min(e, hi) if hi else e
@@ -93,7 +93,7 @@ def test_covering_rule(built):
         a = records[(records.city == key) & (records.segment == "alerts_in_ua")]
         assert a.unit.isin(c.archive_titles).all()
     # a real alert in another raion of Kharkiv oblast exists in the raw data but not in the city
-    raw = pd.read_csv(SOURCES["official"]["path"], usecols=["oblast", "raion", "level", "started_at"])
+    raw = pd.read_csv(source_path("official"), usecols=["oblast", "raion", "level", "started_at"])
     other = raw[(raw.oblast == "Харківська область") & (raw.level == "raion") & (raw.raion == "Чугуївський район")]
     assert len(other) > 0
     assert not records[records.city == "kharkiv"].unit.eq("Чугуївський район").any()

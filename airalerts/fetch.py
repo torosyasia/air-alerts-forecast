@@ -1,11 +1,20 @@
-"""Download the pinned raw sources (if not cached), verify their pinned sha256 and write
-data/raw/MANIFEST.json (source -> url, file, sha256; deterministic, committed)."""
+"""Raw data: verify the pinned snapshot, or download the newest versions (--latest).
+
+Pinned (default): every file listed in data/raw/MANIFEST.json is downloaded if missing from
+its exact-commit URL and checked against its sha256. The run reproduces the README numbers.
+
+Latest: for GitHub sources the current head commit of the branch is resolved with
+`git ls-remote` and the file is downloaded from that commit; KMDA is downloaded from
+data.gov.ua as a new dated snapshot. The manifest is rewritten with the new pins, so the
+refreshed state is itself reproducible once committed.
+"""
 import hashlib
 import json
 import subprocess
 import sys
+from datetime import datetime, timezone
 
-from .config import RAW, SOURCES
+from .config import MANIFEST, RAW, SOURCE_SPECS, pinned
 
 
 def sha256(path):
@@ -16,26 +25,63 @@ def sha256(path):
     return h.hexdigest()
 
 
-def fetch_all(force=False):
+def download(url, path):
+    tmp = path.with_suffix(path.suffix + ".part")
+    subprocess.run(["curl", "-sSfL", "--retry", "4", "-m", "600", "-A", "Mozilla/5.0", "-o", str(tmp), url],
+                   check=True)
+    tmp.replace(path)
+
+
+def fetch_pinned():
     RAW.mkdir(parents=True, exist_ok=True)
-    manifest_path = RAW / "MANIFEST.json"
-    manifest = {}
-    for name, src in SOURCES.items():
-        path = src["path"]
-        if src.get("committed"):
-            if not path.exists():
+    for name, pin in pinned().items():
+        path = RAW / pin["file"]
+        if not path.exists():
+            if pin.get("committed"):
                 sys.exit(f"[fetch] {name}: committed snapshot {path} is missing")
-        elif force or not path.exists():
-            print(f"[fetch] {name}: {src['url']}")
-            subprocess.run(["curl", "-sSfL", "--retry", "4", "-m", "600", "-o", str(path), src["url"]],
-                           check=True)
+            print(f"[fetch] {name}: {pin['url']}")
+            download(pin["url"], path)
         digest = sha256(path)
-        if digest != src["sha256"]:
-            sys.exit(f"[fetch] {name}: sha256 mismatch {digest} != pinned {src['sha256']}")
-        manifest[name] = {"url": src["url"], "file": path.name, "sha256": digest}
-    manifest_path.write_text(json.dumps(manifest, indent=2, ensure_ascii=False) + "\n")
-    return manifest
+        if digest != pin["sha256"]:
+            sys.exit(f"[fetch] {name}: sha256 mismatch {digest} != pinned {pin['sha256']}")
+    return pinned()
+
+
+def head_commit(repo, branch):
+    out = subprocess.run(["git", "ls-remote", f"https://github.com/{repo}", f"refs/heads/{branch}"],
+                         capture_output=True, text=True, timeout=120)
+    if out.returncode != 0 or not out.stdout.strip():
+        raise RuntimeError(f"cannot resolve {repo}@{branch}: {out.stderr.strip()}")
+    return out.stdout.split()[0]
+
+
+def fetch_latest():
+    """Download the newest version of every source and rewrite the manifest."""
+    RAW.mkdir(parents=True, exist_ok=True)
+    old, new = pinned(), {}
+    for name, spec in SOURCE_SPECS.items():
+        try:
+            if "repo" in spec:
+                sha = head_commit(spec["repo"], spec["branch"])
+                url = f"https://raw.githubusercontent.com/{spec['repo']}/{sha}/{spec['file']}"
+                ver = sha[:7]
+            else:
+                url, ver = spec["url"], datetime.now(timezone.utc).date().isoformat()
+            path = RAW / spec["local"].format(ver=ver)
+            if not path.exists():
+                print(f"[fetch --latest] {name}: {url}")
+                download(url, path)
+            new[name] = {"url": url, "file": path.name, "sha256": sha256(path), "version": ver}
+            if spec.get("committed"):
+                new[name]["committed"] = True
+        except Exception as exc:  # keep the previous pin rather than failing the whole run
+            print(f"[fetch --latest] {name}: FAILED ({exc}); keeping pinned version {old[name]['version']}")
+            new[name] = old[name]
+    MANIFEST.write_text(json.dumps(new, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    for name in new:
+        print(f"[fetch --latest] {name}: {old[name]['version']} -> {new[name]['version']}")
+    return new
 
 
 if __name__ == "__main__":
-    fetch_all(force="--force" in sys.argv)
+    fetch_latest() if "--latest" in sys.argv else fetch_pinned()

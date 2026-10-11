@@ -12,7 +12,7 @@ import json
 import numpy as np
 import pandas as pd
 
-from .config import CITIES, IMPUTED_DURATION_S, SOURCES, TZ
+from .config import CITIES, IMPUTED_DURATION_S, TZ, source_path
 
 COLUMNS = ["source", "city", "unit_type", "unit", "level", "cause",
            "started_at", "finished_at", "record_id"]
@@ -31,7 +31,7 @@ def _covers(df, city, oblast_col, level_col, raion_col, hromada_col):
 def load_official():
     """Official channel CSV (UTC). Exact duplicate rows are dropped; rows whose end was
     imputed by the upstream parser (duration exactly 1 h) are flagged, not yet dropped."""
-    raw = pd.read_csv(SOURCES["official"]["path"])
+    raw = pd.read_csv(source_path("official"))
     n_raw = len(raw)
     raw = raw.drop_duplicates()
     stats = {"rows_raw": n_raw, "rows_exact_duplicates": n_raw - len(raw)}
@@ -56,7 +56,7 @@ def load_official():
 
 def load_archive():
     """alerts.in.ua archive (UTC), air_raid alerts only, with yellow/red level."""
-    raw = pd.read_csv(SOURCES["alerts_in_ua"]["path"])
+    raw = pd.read_csv(source_path("alerts_in_ua"))
     stats = {"rows_raw": len(raw), "rows_not_air_raid": int((raw.alert_type != "air_raid").sum())}
     raw = raw[raw.alert_type == "air_raid"]
     for c in ("started_at", "finished_at"):
@@ -98,7 +98,7 @@ def localize_kyiv(start_naive, end_naive):
 
 def load_kmda():
     """KMDA open data for Kyiv City (naive local time, level and cause)."""
-    raw = pd.DataFrame(json.loads(SOURCES["kmda"]["path"].read_text(encoding="utf-8")))
+    raw = pd.DataFrame(json.loads(source_path("kmda").read_text(encoding="utf-8")))
     assert (raw.addressAdminUnitL2 == "місто Київ").all()
     assert (raw.type == "Повітряна тривога").all()
     s, e, n_amb = localize_kyiv(raw.dateTimeStart, raw.dateTimeEnd)

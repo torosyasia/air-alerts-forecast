@@ -16,7 +16,7 @@ import pandas as pd
 from . import intervals as iv
 from .config import (ARCHIVE_COMPLETE_FROM, CITIES, EPISODE_GAP_S, OFFICIAL_COMPLETE_UNTIL, OFFICIAL_OUTAGES,
                      OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, RESULTS, TZ)
-from .fetch import fetch_all
+from .fetch import fetch_pinned
 from .sources import load_archive, load_kmda, load_official
 
 FIRST_DAY = pd.Timestamp("2022-03-16").date()  # first full day of the official CSV
@@ -58,7 +58,7 @@ def segments(official, archive, kmda, archive_snapshot):
 
 
 def build():
-    fetch_all()
+    fetch_pinned()
     official, st_off = load_official()
     archive, st_arc = load_archive()
     kmda, st_kmda = load_kmda()

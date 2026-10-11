@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 REPORTS = ROOT / "reports"
+RESULTS = ROOT / "results"  # small committed result tables, readable on GitHub
 
 TZ = "Europe/Kyiv"  # the forecast day D is [00:00, 24:00) Kyiv local time
 

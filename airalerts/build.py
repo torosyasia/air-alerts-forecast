@@ -15,7 +15,7 @@ import pandas as pd
 
 from . import intervals as iv
 from .config import (ARCHIVE_COMPLETE_FROM, CITIES, EPISODE_GAP_S, OFFICIAL_COMPLETE_UNTIL,
-                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, TZ)
+                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, RESULTS, TZ)
 from .fetch import fetch_all
 from .sources import load_archive, load_kmda, load_official
 
@@ -92,11 +92,20 @@ def build():
     PROCESSED.mkdir(parents=True, exist_ok=True)
     records.to_csv(PROCESSED / "city_records.csv", index=False)
     daily.to_csv(PROCESSED / "daily.csv", index=False)
+    export_daily(daily)
 
     checks = cross_checks(official, archive, kmda)
     checks["imputed_sensitivity"] = imputed_sensitivity(records, imputed, daily)
     write_report(daily, records, imputed, ongoing.sum(), st_off, st_arc, st_kmda, checks, seg, last_full_day)
     return daily, records, checks
+
+
+def export_daily(daily):
+    """Committed copy of the daily target table (rounded to 0.001 h = 3.6 s)."""
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    cols = ["city", "date", "hours", "hours_yellow", "hours_red", "hours_none", "n_episodes",
+            "day_len_h", "source", "long_alert"]
+    daily[cols].round(3).to_csv(RESULTS / "daily_target.csv", index=False)
 
 
 def load_processed():

@@ -14,7 +14,7 @@ import subprocess
 import sys
 from datetime import datetime, timezone
 
-from .config import MANIFEST, RAW, SOURCE_SPECS, pinned
+from .config import MANIFEST, RAW, SOURCE_SPECS, TZ, pinned
 
 
 def sha256(path):
@@ -83,6 +83,14 @@ def fetch_latest():
             print(f"[fetch --latest] {name}: FAILED ({exc}); keeping pinned version {old[name]['version']}")
             new[name] = old[name]
     MANIFEST.write_text(json.dumps(new, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
+    if new["kmda"]["file"] != old["kmda"]["file"]:
+        # Kyiv switches to alerts.in.ua at local midnight of the last (possibly partial) KMDA
+        # day. Fixed here, once per pinned snapshot, so the backtest never derives it from data
+        # that appeared after a forecast origin (config.kmda_to_archive_cut).
+        from .sources import load_kmda
+        kmda, _ = load_kmda()
+        new["kmda"]["kyiv_archive_from"] = kmda.started_at.max().tz_convert(TZ).date().isoformat()
+        MANIFEST.write_text(json.dumps(new, indent=2, ensure_ascii=False) + "\n", encoding="utf-8")
     for name in new:
         print(f"[fetch --latest] {name}: {old[name]['version']} -> {new[name]['version']}")
     return new

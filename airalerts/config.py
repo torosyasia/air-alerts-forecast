@@ -56,6 +56,18 @@ OFFICIAL_COMPLETE_UNTIL = pd.Timestamp("2026-09-07 06:09", tz="UTC")
 # both are complete (checked in build.py on the overlap).
 OFFICIAL_TO_ARCHIVE_CUT = pd.Timestamp("2026-09-07 00:00", tz=TZ)
 
+
+def kmda_to_archive_cut():
+    """Kyiv: KMDA until local midnight of this day, alerts.in.ua from it (D-05).
+
+    The day is the last day present in the pinned KMDA snapshot (it may be partial, so it
+    comes from the archive). It is fixed when the snapshot is pinned (fetch.py) and stored in
+    MANIFEST.json, not derived from the data inside the backtest: otherwise which source
+    supplies the days before D would depend on KMDA records published after D 00:00 - a leak
+    found by the leak-hunter agent (agents/leak_hunter.md).
+    """
+    return pd.Timestamp(pinned()["kmda"]["kyiv_archive_from"]).tz_localize(TZ)
+
 # Documented outages of the official channel (no posts for the whole country). Posts #334744
 # (last normal post) and #334746 (first post after); #334745 on 2026-08-30 12:42 UTC reads
 # "З технічних причин тимчасово не працює публікація повідомлень в цьому каналі".

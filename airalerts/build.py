@@ -15,7 +15,7 @@ import pandas as pd
 
 from . import intervals as iv
 from .config import (ARCHIVE_COMPLETE_FROM, CITIES, EPISODE_GAP_S, OFFICIAL_COMPLETE_UNTIL, OFFICIAL_OUTAGES,
-                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, RESULTS, TZ)
+                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, RESULTS, TZ, kmda_to_archive_cut)
 from .fetch import fetch_pinned
 from .sources import load_archive, load_kmda, load_official
 
@@ -41,7 +41,7 @@ def clip(df, lo=None, hi=None):
 
 def segments(official, archive, kmda, archive_snapshot):
     """Which source covers which time range, per city. Returns {city: [(source_df, lo, hi)]}."""
-    kmda_cut = pd.Timestamp(local_midnight(kmda.started_at.max()))  # last KMDA day may be partial
+    kmda_cut = kmda_to_archive_cut()          # pinned with the snapshot, not derived from the data
     archive_cut = OFFICIAL_TO_ARCHIVE_CUT.tz_convert("UTC")
     assert ARCHIVE_COMPLETE_FROM < archive_cut < OFFICIAL_COMPLETE_UNTIL
     assert kmda_cut > ARCHIVE_COMPLETE_FROM

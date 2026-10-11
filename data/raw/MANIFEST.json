@@ -16,6 +16,7 @@
     "file": "kmda_airalerts_2026-10-10.json",
     "sha256": "0c9ef4fc776ef695d818127ff5d11f9a9e994acf703c063e97b89f332c07e44b",
     "version": "2026-10-10",
-    "committed": true
+    "committed": true,
+    "kyiv_archive_from": "2026-10-04"
   }
 }

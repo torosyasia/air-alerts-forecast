@@ -84,7 +84,7 @@
 
 ## Що змінилось
 - **Коміти.** [`6381f59`](https://github.com/torosyasia/air-alerts-forecast/commit/6381f59) — тести
-  агента (2 падають); наступний коміт — виправлення L1 (див. [agents/README.md](README.md#коміти)).
+  агента (2 падають) → [`48d7f80`](https://github.com/torosyasia/air-alerts-forecast/commit/48d7f80) — виправлення L1.
 - **Тести.** До 45 наших тестів додано 12 + 1 xfail.
 
 ## Точний промпт

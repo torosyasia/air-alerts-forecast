@@ -60,8 +60,8 @@ flowchart LR
 |---|---|---|---|
 | [Рецензент](reviewer.md) | 11.10, перед фінальним PR | ~170 чисел звірено. Знайдено: подвійне округлення в коді, неточну дату переходу на районні тривоги, 10 висновків сильніших за докази | виправлено все: [`c80c79f`](https://github.com/torosyasia/air-alerts-forecast/commit/c80c79f) |
 | [Відтворювач](reproducer.md) | 11.10, паралельно | Закріплений запуск з чистого клону відтворюється бітово. Але `--latest` ламав тест, плодив дублі знімка, лишав модель захардкодженою, а ручні таблиці застарівали | виправлено все: [`bdf54f7`](https://github.com/torosyasia/air-alerts-forecast/commit/bdf54f7) |
-| [Адвокат диявола](devils_advocate.md) | 12.10, після merge #3 | **Спростував** «злам лише київський»: Київська, Черкаська, Вінницька області теж зросли 27.08. «Усі години доби» — наслідок кількості. Розкид між днями — хвилі, а не пачки. Решта тримається | висновки переписано; додано модуль областей і fig9 |
-| [Мисливець за витоками](leak_hunter.md) | 12.10, паралельно | **Справжній, але малий витік:** точка склейки KMDA → alerts.in.ua залежала від майбутніх записів. Знайдено ще баг на стику джерел (не витік). Решта шляхів чиста | тест, що падав ([`6381f59`](https://github.com/torosyasia/air-alerts-forecast/commit/6381f59)), потім виправлення; баг — задокументований xfail |
+| [Адвокат диявола](devils_advocate.md) | 12.10, після merge #3 | **Спростував** «злам лише київський»: Київська, Черкаська, Вінницька області теж зросли 27.08. «Усі години доби» — наслідок кількості. Розкид між днями — хвилі, а не пачки. Решта тримається | висновки переписано; додано модуль областей і fig9 ([`6818d15`](https://github.com/torosyasia/air-alerts-forecast/commit/6818d15)) |
+| [Мисливець за витоками](leak_hunter.md) | 12.10, паралельно | **Справжній, але малий витік:** точка склейки KMDA → alerts.in.ua залежала від майбутніх записів. Знайдено ще баг на стику джерел (не витік). Решта шляхів чиста | тест, що падав ([`6381f59`](https://github.com/torosyasia/air-alerts-forecast/commit/6381f59)), потім виправлення ([`48d7f80`](https://github.com/torosyasia/air-alerts-forecast/commit/48d7f80)); баг — задокументований xfail |
 
 Точні промпти — у файлі кожного агента. Промпти писав Claude Code англійською, бо агенти
 працюють із кодом. Кожен промпт описує роль, задачу, обмеження («нічого не пуш», «працюй у
@@ -105,9 +105,10 @@ flowchart LR
 - Рецензент → [`c80c79f`](https://github.com/torosyasia/air-alerts-forecast/commit/c80c79f).
 - Відтворювач → [`bdf54f7`](https://github.com/torosyasia/air-alerts-forecast/commit/bdf54f7).
 - Мисливець за витоками → [`6381f59`](https://github.com/torosyasia/air-alerts-forecast/commit/6381f59)
-  (тести, що падали) і коміт «Pin the Kyiv KMDA → archive switch day» (виправлення).
-- Адвокат диявола → коміт «Regional break: neighbour oblasts …» (висновки, модуль областей,
-  fig9, D у межах тижня).
+  (тести, що падали) → [`48d7f80`](https://github.com/torosyasia/air-alerts-forecast/commit/48d7f80) (виправлення).
+- Адвокат диявола → [`6818d15`](https://github.com/torosyasia/air-alerts-forecast/commit/6818d15) (висновки, модуль областей, fig9, D у межах
+  тижня).
+- Короткий README, REPORT.md і глосарій → [`1c8e87f`](https://github.com/torosyasia/air-alerts-forecast/commit/1c8e87f); ця тека → [`e80991e`](https://github.com/torosyasia/air-alerts-forecast/commit/e80991e).
 
 Повну історію див. у [PR #4](https://github.com/torosyasia/air-alerts-forecast/pull/4).
 

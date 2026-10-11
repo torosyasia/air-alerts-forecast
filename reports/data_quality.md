@@ -22,21 +22,22 @@
 
 ## Cross-source agreement on overlaps
 
-- **kyiv_kmda_vs_official**: days=1635, corr=0.9797, mae_h=0.0377, days_absdiff_gt_0.1h=27, period=2022-03-16..2026-09-05
+- **kyiv_kmda_vs_official**: days=1630, corr=0.996, mae_h=0.0167, days_absdiff_gt_0.1h=22, period=2022-03-16..2026-09-05
 - **kyiv_kmda_vs_archive**: days=27, corr=1.0, mae_h=0.0141, days_absdiff_gt_0.1h=0, period=2026-09-07..2026-10-03
 - **kharkiv_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=15.1028, archive_h=15.1053
 - **dnipro_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=6.3169, archive_h=7.8132
 - **lviv_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=0.0, archive_h=0.0
 - **imputed_sensitivity**: dnipro={'days_changed': 9, 'max_abs_diff_h': 1.0, 'sum_abs_diff_h': 8.999999999999998}, kharkiv={'days_changed': 5, 'max_abs_diff_h': 1.0000000000000009, 'sum_abs_diff_h': 4.001111111111112}, lviv={'days_changed': 3, 'max_abs_diff_h': 1.0, 'sum_abs_diff_h': 2.9999999999999996}
+- **official_outages**: windows_utc=['2026-08-29 04:55:28+00:00 .. 2026-09-02 13:48:04+00:00'], records_cut_at_outage_start=2, missing_city_days={'dnipro': 5, 'kharkiv': 5, 'lviv': 5}
 
 ## Per city
 
 | city | days | first | last | mean h/day | zero days | longest zero run | days with alert >24h | days with dropped imputed record | records |
 |---|---|---|---|---|---|---|---|---|---|
-| dnipro | 1669 | 2022-03-16 | 2026-10-09 | 4.66 | 25 | 3 (from 2026-05-09) | 0 | 9 | 7672 |
-| kharkiv | 1669 | 2022-03-16 | 2026-10-09 | 8.91 | 7 | 2 (from 2022-11-21) | 19 | 5 | 13898 |
+| dnipro | 1669 | 2022-03-16 | 2026-10-09 | 4.67 | 22 | 3 (from 2026-05-09) | 0 | 9 | 7672 |
+| kharkiv | 1669 | 2022-03-16 | 2026-10-09 | 8.87 | 7 | 2 (from 2022-11-21) | 14 | 5 | 13898 |
 | kyiv | 1669 | 2022-03-16 | 2026-10-09 | 1.73 | 480 | 14 (from 2023-10-03) | 0 | 0 | 2628 |
-| lviv | 1669 | 2022-03-16 | 2026-10-09 | 0.54 | 1077 | 36 (from 2026-08-08) | 0 | 3 | 846 |
+| lviv | 1669 | 2022-03-16 | 2026-10-09 | 0.54 | 1072 | 28 (from 2023-09-30) | 0 | 3 | 846 |
 
 ## Records with imputed end (start + 1 h) dropped
 
@@ -56,5 +57,3 @@
 | kharkiv | Харківська область | 2024-07-25 21:54:28+00:00 | 2024-07-26 22:56:32+00:00 | 25.0 |
 | kharkiv | Харківська область | 2024-08-06 11:05:40+00:00 | 2024-08-07 11:35:54+00:00 | 24.5 |
 | kharkiv | Харківський район | 2026-02-28 04:08:57+00:00 | 2026-03-01 16:47:17+00:00 | 36.6 |
-| kharkiv | Харківський район | 2026-08-29 00:14:24+00:00 | 2026-09-02 13:58:04+00:00 | 109.7 |
-| kharkiv | м. Харків та Харківська територіальна громада | 2026-08-29 00:14:40+00:00 | 2026-09-02 13:59:43+00:00 | 109.8 |

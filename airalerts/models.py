@@ -54,6 +54,9 @@ def rolling_forecasts(X, daily, days, cols, window=None, name=None):
             if window:
                 train = train[train.index >= (pd.Timestamp(D) - pd.Timedelta(days=window)).date()]
             assert train.index.max() < D, "leakage: training row not before the forecast day"
+            train = train.dropna(subset=list(cols) + ["y"])      # missing days are not used
+            if xc.loc[D, cols].isna().any() or pd.isna(xc.loc[D, "y"]):
+                continue                                         # no forecast without the inputs
             q = np.clip(fit_predict(train, xc.loc[D], cols), 0, cap[(city, D)])
             rows.append({"city": city, "date": D, "method": name, "q10": q[0], "q50": q[1], "q90": q[2],
                          "y": xc.loc[D, "y"], "active_t0": xc.loc[D, "active_t0"], "cap": cap[(city, D)]})
@@ -100,7 +103,9 @@ def run(X, daily):
     per = periods(daily)
     val, test = days_between(*per["validation"]), days_between(*per["test"])
     allv = val + test
-    warm = days_between(pd.Timestamp(per["validation"][0]) - pd.Timedelta(days=N_CONF),
+    # warm-up for CQR: N_CONF past forecasts are needed; +21 days so that a data gap before the
+    # validation (e.g. the 29.08-02.09 outage) does not delay the first calibrated forecast
+    warm = days_between(pd.Timestamp(per["validation"][0]) - pd.Timedelta(days=N_CONF + 21),
                         pd.Timestamp(per["validation"][0]) - pd.Timedelta(days=1))
 
     # 1) fresh-window length: validation only, main feature set
@@ -122,7 +127,17 @@ def run(X, daily):
 
     base = pd.concat([baseline_forecasts(daily[daily.city == c]).assign(city=c) for c in FORECAST_CITIES])
     base = base[base.date.isin(allv)]
+    fc, base = common_days(fc, base)
     return fc, base, val_scores, W_best, per
+
+
+def common_days(fc, base):
+    """Score every method on the same city-days: those where all methods have a forecast."""
+    key = lambda f: set(zip(f.city, f.date))
+    sets = [key(g) for _, g in fc.groupby("method")] + [key(g) for _, g in base.groupby("method")]
+    common = set.intersection(*sets)
+    keep = lambda f: f[[k in common for k in zip(f.city, f.date)]]
+    return keep(fc), keep(base)
 
 
 def compare(fc, base, days):

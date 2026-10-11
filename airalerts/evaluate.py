@@ -34,8 +34,8 @@ def _point_forecasts(y):
     past = y.shift(1)
     return {
         "yesterday": past,
-        "mean7": past.rolling(7).mean(),
-        "median7": past.rolling(7).median(),
+        "mean7": past.rolling(7, min_periods=4).mean(),     # missing days skipped
+        "median7": past.rolling(7, min_periods=4).median(),
         "same_weekday": y.shift(7),
     }
 
@@ -51,18 +51,22 @@ def _rolling_band(x, n, kind):
       finite-sample rank used by split conformal prediction, coverage >= 0.8 under
       exchangeability.
     """
+    min_obs = (n + 1) // 2  # missing days are skipped; at least half of the window observed
     if kind == "empirical":
-        r = x.rolling(n)
+        r = x.rolling(n, min_periods=min_obs)
         return r.quantile(ALPHA / 2), r.quantile(1 - ALPHA / 2)
-    k_lo = int(np.floor((n + 1) * ALPHA / 2))
-    k_hi = int(np.ceil((n + 1) * (1 - ALPHA / 2)))
     vals = x.to_numpy(dtype=float)
     lo, hi = np.full(len(vals), np.nan), np.full(len(vals), np.nan)
     if len(vals) >= n:
-        w = np.sort(np.lib.stride_tricks.sliding_window_view(vals, n), axis=1)
-        ok = ~np.isnan(w).any(axis=1)
-        lo[n - 1:] = np.where(ok, w[:, k_lo - 1] if k_lo >= 1 else -np.inf, np.nan)
-        hi[n - 1:] = np.where(ok, w[:, min(k_hi, n) - 1], np.nan)
+        for i, w in enumerate(np.lib.stride_tricks.sliding_window_view(vals, n), start=n - 1):
+            w = np.sort(w[np.isfinite(w)])
+            m = len(w)
+            if m < min_obs:
+                continue
+            k_lo = int(np.floor((m + 1) * ALPHA / 2))
+            k_hi = int(np.ceil((m + 1) * (1 - ALPHA / 2)))
+            lo[i] = w[k_lo - 1] if k_lo >= 1 else -np.inf
+            hi[i] = w[min(k_hi, m) - 1]
     return pd.Series(lo, index=x.index), pd.Series(hi, index=x.index)
 
 
@@ -79,7 +83,8 @@ def baseline_forecasts(daily_city, n_resid=N_RESID, band="conformal"):
     past = y.shift(1)
     c_lo, c_hi = _rolling_band(past, n_resid, band)
     out.append(pd.DataFrame({"method": "climatology28", "q10": c_lo,
-                             "q50": past.rolling(n_resid).quantile(0.5), "q90": c_hi}))
+                             "q50": past.rolling(n_resid, min_periods=(n_resid + 1) // 2).quantile(0.5),
+                             "q90": c_hi}))
     f = pd.concat(out)
     for q in ("q10", "q50", "q90"):  # hours are bounded by the length of the day
         f[q] = f[q].clip(lower=0, upper=cap.reindex(f.index))

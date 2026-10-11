@@ -35,9 +35,11 @@ def grid_hours(records, d):
 
 def test_hours_within_day_length(built):
     daily, _, _ = built
+    d = daily[~daily.missing]
     for col in ("hours", "hours_none", "hours_yellow", "hours_red"):
-        assert (daily[col] >= 0).all()
-        assert (daily[col] <= daily.day_len_h + 1e-9).all(), col
+        assert (d[col] >= 0).all()
+        assert (d[col] <= d.day_len_h + 1e-9).all(), col
+    assert daily.hours.isna().equals(daily.missing)  # NaN only on documented missing days
 
 
 def test_dst_day_lengths(built):
@@ -146,9 +148,10 @@ def test_cross_source_agreement(built):
 def test_level_hours_add_up_to_total(built):
     """red + yellow + none == total for every city and day (overlaps counted once, as red)."""
     daily, _, _ = built
-    s = daily.hours_red + daily.hours_yellow + daily.hours_none
-    assert np.allclose(s, daily.hours, atol=1e-9)
-    assert (daily[["hours_red", "hours_yellow", "hours_none"]] >= -1e-9).all().all()
+    d = daily[~daily.missing]
+    s = d.hours_red + d.hours_yellow + d.hours_none
+    assert np.allclose(s, d.hours, atol=1e-9)
+    assert (d[["hours_red", "hours_yellow", "hours_none"]] >= -1e-9).all().all()
 
 
 def test_red_wins_where_levels_overlap(built):
@@ -162,4 +165,21 @@ def test_red_wins_where_levels_overlap(built):
                 for l in ("red", "yellow", "none"))
     excess = naive - d.hours
     assert (excess > 0.01).sum() > 0               # the overlap is real
-    assert np.allclose(d.hours_red + d.hours_yellow + d.hours_none, d.hours, atol=1e-9)
+    assert np.allclose(d.hours_red + d.hours_yellow + d.hours_none, d.hours, atol=1e-9, equal_nan=True)
+
+
+def test_channel_outage_days_are_missing_not_filled(built):
+    """The official channel published nothing 2026-08-29 04:55 -> 09-02 13:48 UTC (post #334745:
+    'З технічних причин тимчасово не працює публікація'). Kharkiv, Dnipro, Lviv use that source
+    then: their days 29.08-02.09 are NaN. Kyiv uses KMDA and is complete."""
+    daily, records, _ = built
+    out = [date(2026, 8, d) for d in (29, 30, 31)] + [date(2026, 9, 1), date(2026, 9, 2)]
+    for city in ("kharkiv", "dnipro", "lviv"):
+        d = daily[daily.city == city].set_index("date")
+        assert d.loc[out, "missing"].all() and d.loc[out, "hours"].isna().all()
+        assert not d.loc[[date(2026, 8, 28), date(2026, 9, 3)], "missing"].any()
+        r = records[(records.city == city) & (records.segment == "official")]
+        lo = pd.Timestamp("2026-08-29 04:55:28", tz="UTC")
+        assert not ((r.finished_at > lo) & (r.started_at < pd.Timestamp("2026-09-02 13:48:04", tz="UTC"))).any()
+    k = daily[daily.city == "kyiv"].set_index("date")
+    assert not k.loc[out, "missing"].any() and k.loc[out, "hours"].notna().all()

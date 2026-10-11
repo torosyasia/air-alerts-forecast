@@ -38,27 +38,36 @@ def history_at(records, t0, lookback_days=LOOKBACK_DAYS + 1):
     return h
 
 
-def features_at(records, day):
-    """Feature vector for day D from the records of one city."""
+def features_at(records, day, missing=frozenset()):
+    """Feature vector for day D from the records of one city.
+
+    `missing`: days without data (DECISIONS D-06). Their hours/episodes are NaN; a lag that
+    lands on such a day is NaN; window means and medians use the observed days only."""
     t0 = origin(day)
     h = history_at(records, t0)
     first = (pd.Timestamp(day) - pd.Timedelta(days=LOOKBACK_DAYS)).date()
     last = (pd.Timestamp(day) - pd.Timedelta(days=1)).date()
 
     ms, me = iv.merge(h.started_at, h.finished_at)
-    hours = iv.hours_per_day(ms, me, first, last).to_numpy()[::-1]   # hours[0] = day D-1
+    hours = iv.hours_per_day(ms, me, first, last).to_numpy(dtype=float)[::-1].copy()  # hours[0] = D-1
     es, _ = iv.merge(h.started_at, h.finished_at, gap_s=EPISODE_GAP_S)
-    eps = iv.starts_per_day(es, first, last).to_numpy()[::-1]
+    eps = iv.starts_per_day(es, first, last).to_numpy(dtype=float)[::-1].copy()
     lvl = {k: v.iloc[0] for k, v in iv.level_hours_per_day(h, last, last).items()}  # red > yellow
+    days_back = [(pd.Timestamp(day) - pd.Timedelta(days=k)).date() for k in range(1, LOOKBACK_DAYS + 1)]
+    gap = np.array([d in missing for d in days_back])
+    hours[gap], eps[gap] = np.nan, np.nan
+
+    def nanstat(fn, x):
+        return float(fn(x)) if np.isfinite(x).any() else np.nan
 
     f = {f"h_lag{k}": hours[k - 1] for k in range(1, 8)}
-    f["h_mean7"] = hours[:7].mean()
-    f["h_med7"] = float(np.median(hours[:7]))
-    f["h_mean28"] = hours[:28].mean()
+    f["h_mean7"] = nanstat(np.nanmean, hours[:7])
+    f["h_med7"] = nanstat(np.nanmedian, hours[:7])
+    f["h_mean28"] = nanstat(np.nanmean, hours[:28])
     f["ep_lag1"] = eps[0]
-    f["ep_mean7"] = eps[:7].mean()
-    f["yellow_lag1"] = lvl["yellow"]
-    f["red_lag1"] = lvl["red"]
+    f["ep_mean7"] = nanstat(np.nanmean, eps[:7])
+    f["yellow_lag1"] = np.nan if gap[0] else lvl["yellow"]
+    f["red_lag1"] = np.nan if gap[0] else lvl["red"]
 
     t0_64 = t0.to_datetime64()
     running = h[h.ongoing_at_t0]
@@ -73,7 +82,7 @@ def features_at(records, day):
     lo6 = t0_64 - np.timedelta64(6, "h")
     f["h_last6h"] = float(sum(max(np.timedelta64(0, "s"), min(e, t0_64) - max(s, lo6))
                               / np.timedelta64(1, "s") for s, e in zip(ms, me)) / 3600)
-    nz = np.nonzero(hours[:LOOKBACK_DAYS] > 0)[0]
+    nz = np.nonzero(np.nan_to_num(hours[:LOOKBACK_DAYS], nan=0.0) > 0)[0]  # observed days only
     f["days_since_alert"] = float(nz[0] + 1) if len(nz) else float(LOOKBACK_DAYS + 1)
     if f["active_t0"]:
         f["days_since_alert"] = 0.0
@@ -92,11 +101,12 @@ def feature_matrix(records, daily, cities=None):
         if cities and city not in cities:
             continue
         rec = records[records.city == city]
+        missing = frozenset(pd.to_datetime(d.date[d.hours.isna()]).dt.date)
         start = (pd.Timestamp(d.date.min()) + pd.Timedelta(days=LOOKBACK_DAYS)).date()
         for day, y in zip(pd.to_datetime(d.date).dt.date, d.hours):
             if day < start:
                 continue
-            f = features_at(rec, day)
+            f = features_at(rec, day, missing)
             f.update(city=city, date=day, y=y)
             rows.append(f)
     cols = ["city", "date", "y"] + FEATURES

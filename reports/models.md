@@ -10,10 +10,10 @@ Feature sets: `with_midnight` = h_lag1, h_mean7, h_mean28, ep_mean7, h_last6h, w
 
 |    |   MAE |   coverage80 |   width |   interval_score |
 |---:|------:|-------------:|--------:|-----------------:|
-| 28 | 4.582 |        0.426 |   7.492 |           27.497 |
-| 42 | 4.024 |        0.444 |   6.972 |           25.776 |
-| 56 | 3.718 |        0.481 |   7.113 |           20.491 |
-| 84 | 3.466 |        0.593 |   7.336 |           18.274 |
+| 28 | 4.718 |        0.333 |   6.242 |           28.587 |
+| 42 | 4.173 |        0.463 |   7.713 |           25.213 |
+| 56 | 3.769 |        0.611 |   8.702 |           21.88  |
+| 84 | 3.347 |        0.611 |   7.441 |           19.298 |
 
 Chosen W = 84 (lowest validation interval score).
 
@@ -50,24 +50,24 @@ Baselines:
 
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
-| yesterday     |  4.08 |         0.83 |       0.61 |       0.94 |    9.81 |            17.89 |
-| mean7         |  2.65 |         0.89 |       0.67 |       0.97 |   10.22 |            13.98 |
-| median7       |  2.59 |         0.94 |       0.74 |       0.99 |   11.92 |            14.34 |
-| same_weekday  |  3.83 |         0.78 |       0.55 |       0.91 |   12.03 |            18.39 |
-| climatology28 |  3.3  |         0.83 |       0.61 |       0.94 |    9.53 |            16.12 |
+| yesterday     |  4.28 |         0.81 |       0.57 |       0.93 |    9.98 |            19.07 |
+| mean7         |  2.73 |         0.69 |       0.44 |       0.86 |    8.21 |            14.54 |
+| median7       |  2.62 |         0.81 |       0.57 |       0.93 |    7.95 |            13.71 |
+| same_weekday  |  3.89 |         0.81 |       0.57 |       0.93 |   15.33 |            22.49 |
+| climatology28 |  3.05 |         0.81 |       0.57 |       0.93 |    7.58 |            14.99 |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  2.98 |         0.89 |       0.67 |       0.97 |   10.98 |            13.66 | False       | True       |
-| qr_fresh84__with_midnight         |  3.19 |         0.5  |       0.29 |       0.71 |    5.62 |            19.37 | False       | False      |
-| qr_fresh84__with_midnight+cqr     |  3.19 |         0.83 |       0.61 |       0.94 |    9.89 |            17.6  | False       | False      |
-| qr_full__no_midnight              |  2.94 |         0.94 |       0.74 |       0.99 |   11.29 |            14.58 | False       | False      |
-| qr_fresh84__no_midnight           |  2.98 |         0.56 |       0.34 |       0.75 |    5.7  |            17.4  | False       | False      |
-| qr_fresh84__no_midnight+cqr       |  2.98 |         0.89 |       0.67 |       0.97 |   10.9  |            16.16 | False       | False      |
-| qr_full__no_midnight_no_last6h    |  3.04 |         0.94 |       0.74 |       0.99 |   11.22 |            14.55 | False       | False      |
-| qr_fresh84__no_midnight_no_last6h |  3.13 |         0.67 |       0.44 |       0.84 |    5.7  |            16.06 | False       | False      |
+| qr_full__with_midnight            |  3.06 |         0.88 |       0.64 |       0.97 |   10.86 |            13.81 | False       | False      |
+| qr_fresh84__with_midnight         |  2.98 |         0.62 |       0.39 |       0.82 |    5.92 |            19.94 | False       | False      |
+| qr_fresh84__with_midnight+cqr     |  2.98 |         0.75 |       0.51 |       0.9  |    8.21 |            19.11 | False       | False      |
+| qr_full__no_midnight              |  3.04 |         0.94 |       0.72 |       0.99 |   11    |            14.55 | False       | False      |
+| qr_fresh84__no_midnight           |  3.01 |         0.81 |       0.57 |       0.93 |    7.31 |            15.96 | False       | False      |
+| qr_fresh84__no_midnight+cqr       |  3.01 |         0.88 |       0.64 |       0.97 |    9.67 |            16.58 | False       | False      |
+| qr_full__no_midnight_no_last6h    |  3.08 |         0.94 |       0.72 |       0.99 |   11.07 |            14.67 | False       | False      |
+| qr_fresh84__no_midnight_no_last6h |  3.02 |         0.81 |       0.57 |       0.93 |    7.06 |            15.28 | False       | False      |
 
 ### dnipro
 
@@ -75,24 +75,24 @@ Baselines:
 
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
-| yesterday     |  2.98 |         0.94 |       0.74 |       0.99 |   12.56 |            13.53 |
-| mean7         |  2.81 |         0.89 |       0.67 |       0.97 |   12.17 |            13.65 |
-| median7       |  2.76 |         0.83 |       0.61 |       0.94 |   13.22 |            15.62 |
-| same_weekday  |  3.62 |         0.89 |       0.67 |       0.97 |   15.04 |            17.16 |
-| climatology28 |  3.27 |         0.94 |       0.74 |       0.99 |   11.08 |            11.52 |
+| yesterday     |  3.15 |         0.94 |       0.72 |       0.99 |   12.25 |            13.34 |
+| mean7         |  2.91 |         0.81 |       0.57 |       0.93 |    9.39 |            12.71 |
+| median7       |  2.92 |         0.75 |       0.51 |       0.9  |    8.93 |            13.76 |
+| same_weekday  |  3.41 |         1    |       0.81 |       1    |   13.15 |            13.15 |
+| climatology28 |  3.32 |         0.75 |       0.51 |       0.9  |    9.1  |            10.49 |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  2.74 |         0.72 |       0.49 |       0.88 |    6.98 |             9.27 | True        | True       |
-| qr_fresh84__with_midnight         |  2.87 |         0.78 |       0.55 |       0.91 |    7.49 |            12.41 | False       | False      |
-| qr_fresh84__with_midnight+cqr     |  2.87 |         0.89 |       0.67 |       0.97 |   13.21 |            13.74 | False       | False      |
-| qr_full__no_midnight              |  2.64 |         0.78 |       0.55 |       0.91 |    7.06 |             8.96 | True        | True       |
-| qr_fresh84__no_midnight           |  2.63 |         0.72 |       0.49 |       0.88 |    7.73 |             9.76 | True        | True       |
-| qr_fresh84__no_midnight+cqr       |  2.63 |         1    |       0.82 |       1    |   10.42 |            10.42 | True        | True       |
-| qr_full__no_midnight_no_last6h    |  2.61 |         0.67 |       0.44 |       0.84 |    7.48 |             9.66 | True        | True       |
-| qr_fresh84__no_midnight_no_last6h |  2.54 |         0.72 |       0.49 |       0.88 |    7.17 |            10.22 | True        | True       |
+| qr_full__with_midnight            |  2.73 |         0.75 |       0.51 |       0.9  |    7.33 |             9.39 | True        | True       |
+| qr_fresh84__with_midnight         |  3.13 |         0.62 |       0.39 |       0.82 |    6.97 |            17.05 | False       | False      |
+| qr_fresh84__with_midnight+cqr     |  3.13 |         0.81 |       0.57 |       0.93 |    9.42 |            16.2  | False       | False      |
+| qr_full__no_midnight              |  2.67 |         0.81 |       0.57 |       0.93 |    7.52 |             9.4  | True        | True       |
+| qr_fresh84__no_midnight           |  2.83 |         0.62 |       0.39 |       0.82 |    6.05 |            13.85 | True        | False      |
+| qr_fresh84__no_midnight+cqr       |  2.83 |         0.81 |       0.57 |       0.93 |    8.33 |            12.91 | True        | False      |
+| qr_full__no_midnight_no_last6h    |  2.85 |         0.75 |       0.51 |       0.9  |    7.98 |             9.67 | True        | True       |
+| qr_fresh84__no_midnight_no_last6h |  2.61 |         0.69 |       0.44 |       0.86 |    5.67 |            14.56 | True        | False      |
 
 ### pooled
 
@@ -100,24 +100,24 @@ Baselines:
 
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
-| yesterday     |  3.78 |         0.93 |       0.82 |       0.97 |   13.35 |            16.36 |
-| mean7         |  3.28 |         0.85 |       0.73 |       0.92 |   13.05 |            15.3  |
-| median7       |  3.12 |         0.89 |       0.78 |       0.95 |   14.15 |            15.91 |
-| same_weekday  |  4.58 |         0.8  |       0.67 |       0.88 |   14.51 |            20.27 |
-| climatology28 |  3.55 |         0.91 |       0.8  |       0.96 |   11.64 |            14.91 |
+| yesterday     |  3.91 |         0.92 |       0.81 |       0.97 |   13.48 |            16.73 |
+| mean7         |  3.38 |         0.76 |       0.63 |       0.86 |   11.66 |            15.29 |
+| median7       |  3.22 |         0.82 |       0.69 |       0.9  |   11.63 |            15.19 |
+| same_weekday  |  4.6  |         0.84 |       0.71 |       0.92 |   15.04 |            20.5  |
+| climatology28 |  3.51 |         0.84 |       0.71 |       0.92 |   10.49 |            14.3  |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  3.2  |         0.8  |       0.67 |       0.88 |    9.19 |            13.43 | False       | True       |
-| qr_fresh84__with_midnight         |  3.47 |         0.59 |       0.46 |       0.71 |    7.34 |            18.27 | False       | False      |
-| qr_fresh84__with_midnight+cqr     |  3.47 |         0.83 |       0.71 |       0.91 |   11.91 |            15.97 | False       | False      |
-| qr_full__no_midnight              |  3.14 |         0.81 |       0.69 |       0.9  |    9.32 |            13.82 | False       | True       |
-| qr_fresh84__no_midnight           |  3.19 |         0.59 |       0.46 |       0.71 |    7.38 |            16.13 | False       | False      |
-| qr_fresh84__no_midnight+cqr       |  3.19 |         0.85 |       0.73 |       0.92 |   10.93 |            14.25 | False       | True       |
-| qr_full__no_midnight_no_last6h    |  3.22 |         0.81 |       0.69 |       0.9  |    9.82 |            14.39 | False       | True       |
-| qr_fresh84__no_midnight_no_last6h |  3.35 |         0.72 |       0.59 |       0.82 |    9.56 |            16.82 | False       | False      |
+| qr_full__with_midnight            |  3.25 |         0.8  |       0.67 |       0.89 |    9.28 |            13.67 | False       | True       |
+| qr_fresh84__with_midnight         |  3.52 |         0.58 |       0.44 |       0.71 |    7.33 |            20.13 | False       | False      |
+| qr_fresh84__with_midnight+cqr     |  3.52 |         0.78 |       0.65 |       0.87 |   10.19 |            17.27 | False       | False      |
+| qr_full__no_midnight              |  3.21 |         0.82 |       0.69 |       0.9  |    9.39 |            14.11 | True        | True       |
+| qr_fresh84__no_midnight           |  3.29 |         0.64 |       0.5  |       0.76 |    7.4  |            17.18 | False       | False      |
+| qr_fresh84__no_midnight+cqr       |  3.29 |         0.78 |       0.65 |       0.87 |    9.89 |            15.26 | False       | False      |
+| qr_full__no_midnight_no_last6h    |  3.35 |         0.84 |       0.71 |       0.92 |    9.97 |            14.62 | False       | False      |
+| qr_fresh84__no_midnight_no_last6h |  3.38 |         0.76 |       0.63 |       0.86 |    9.77 |            18.25 | False       | False      |
 
 ## 2. test: 2026-09-26 .. 2026-10-09
 
@@ -153,23 +153,23 @@ Baselines:
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
 | yesterday     |  2.68 |         0.86 |       0.6  |       0.96 |   10.75 |            13.7  |
-| mean7         |  2.6  |         0.93 |       0.69 |       0.99 |    9.52 |            13.6  |
-| median7       |  2.59 |         0.86 |       0.6  |       0.96 |   10.05 |            14.24 |
-| same_weekday  |  3.17 |         0.79 |       0.52 |       0.92 |   14.05 |            16.34 |
-| climatology28 |  2.2  |         0.93 |       0.69 |       0.99 |    9.1  |            12.7  |
+| mean7         |  2.6  |         0.93 |       0.69 |       0.99 |    8.9  |            12.98 |
+| median7       |  2.59 |         0.93 |       0.69 |       0.99 |    7.97 |            12.02 |
+| same_weekday  |  3.17 |         0.71 |       0.45 |       0.88 |   13.84 |            17.56 |
+| climatology28 |  2.26 |         0.93 |       0.69 |       0.99 |    8.2  |            11.8  |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  2.64 |         0.86 |       0.6  |       0.96 |   10.88 |            13.53 | False       | False      |
-| qr_fresh84__with_midnight         |  2.91 |         0.5  |       0.27 |       0.73 |    5.84 |            14.86 | False       | False      |
-| qr_fresh84__with_midnight+cqr     |  2.91 |         0.86 |       0.6  |       0.96 |   10.13 |            13.98 | False       | False      |
-| qr_full__no_midnight              |  2.44 |         0.93 |       0.69 |       0.99 |   10.87 |            12.78 | False       | False      |
-| qr_fresh84__no_midnight           |  2.85 |         0.57 |       0.33 |       0.79 |    6.32 |            12.88 | False       | False      |
-| qr_fresh84__no_midnight+cqr       |  2.85 |         0.86 |       0.6  |       0.96 |   10.33 |            12.35 | False       | True       |
-| qr_full__no_midnight_no_last6h    |  2.47 |         0.93 |       0.69 |       0.99 |   11.01 |            13.55 | False       | False      |
-| qr_fresh84__no_midnight_no_last6h |  2.58 |         0.64 |       0.39 |       0.84 |    5.11 |            13.44 | False       | False      |
+| qr_full__with_midnight            |  2.69 |         0.86 |       0.6  |       0.96 |   10.91 |            13.39 | False       | False      |
+| qr_fresh84__with_midnight         |  2.68 |         0.64 |       0.39 |       0.84 |    6.98 |            16.5  | False       | False      |
+| qr_fresh84__with_midnight+cqr     |  2.68 |         0.86 |       0.6  |       0.96 |   11.55 |            16.85 | False       | False      |
+| qr_full__no_midnight              |  2.48 |         0.86 |       0.6  |       0.96 |   10.83 |            12.9  | False       | False      |
+| qr_fresh84__no_midnight           |  2.36 |         0.71 |       0.45 |       0.88 |    6.87 |            13.27 | False       | False      |
+| qr_fresh84__no_midnight+cqr       |  2.36 |         0.79 |       0.52 |       0.92 |    8.13 |            13.23 | False       | False      |
+| qr_full__no_midnight_no_last6h    |  2.5  |         0.93 |       0.69 |       0.99 |   10.97 |            13.42 | False       | False      |
+| qr_fresh84__no_midnight_no_last6h |  2.38 |         0.79 |       0.52 |       0.92 |    6.88 |            14.51 | False       | False      |
 
 ### dnipro
 
@@ -177,24 +177,24 @@ Baselines:
 
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
-| yesterday     |  3.84 |         0.86 |        0.6 |       0.96 |   11.45 |            20.97 |
-| mean7         |  2.72 |         0.86 |        0.6 |       0.96 |   11.77 |            17.89 |
-| median7       |  2.56 |         0.86 |        0.6 |       0.96 |   11.97 |            17.42 |
-| same_weekday  |  3.91 |         0.86 |        0.6 |       0.96 |   13.73 |            23.05 |
-| climatology28 |  2.73 |         0.86 |        0.6 |       0.96 |   11.16 |            16.94 |
+| yesterday     |  3.84 |         0.86 |       0.6  |       0.96 |   11.45 |            20.97 |
+| mean7         |  2.72 |         0.86 |       0.6  |       0.96 |    8.63 |            17.58 |
+| median7       |  2.56 |         0.86 |       0.6  |       0.96 |    7.64 |            17.2  |
+| same_weekday  |  3.91 |         0.86 |       0.6  |       0.96 |    8.7  |            21.99 |
+| climatology28 |  3.01 |         0.79 |       0.52 |       0.92 |   10.69 |            17.09 |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  2.22 |         0.79 |       0.52 |       0.92 |    6.23 |            13.66 | True        | True       |
-| qr_fresh84__with_midnight         |  2.1  |         0.71 |       0.45 |       0.88 |    5.7  |            14.68 | True        | True       |
-| qr_fresh84__with_midnight+cqr     |  2.1  |         0.86 |       0.6  |       0.96 |    8.45 |            15.52 | True        | True       |
-| qr_full__no_midnight              |  2.35 |         0.79 |       0.52 |       0.92 |    6.47 |            14.59 | True        | True       |
-| qr_fresh84__no_midnight           |  2.42 |         0.79 |       0.52 |       0.92 |    5.7  |            16.9  | True        | True       |
-| qr_fresh84__no_midnight+cqr       |  2.42 |         0.79 |       0.52 |       0.92 |    7.02 |            17    | True        | False      |
-| qr_full__no_midnight_no_last6h    |  2.64 |         0.71 |       0.45 |       0.88 |    6.98 |            16.09 | False       | True       |
-| qr_fresh84__no_midnight_no_last6h |  2.3  |         0.71 |       0.45 |       0.88 |    5.89 |            18.21 | True        | False      |
+| qr_full__with_midnight            |  2.28 |         0.79 |       0.52 |       0.92 |    6.27 |            13.8  | True        | True       |
+| qr_fresh84__with_midnight         |  2.66 |         0.79 |       0.52 |       0.92 |    6.06 |            16.29 | False       | True       |
+| qr_fresh84__with_midnight+cqr     |  2.66 |         0.86 |       0.6  |       0.96 |    8.11 |            16.88 | False       | True       |
+| qr_full__no_midnight              |  2.39 |         0.79 |       0.52 |       0.92 |    6.64 |            14.79 | True        | True       |
+| qr_fresh84__no_midnight           |  2.75 |         0.79 |       0.52 |       0.92 |    5.94 |            18.14 | False       | False      |
+| qr_fresh84__no_midnight+cqr       |  2.75 |         0.86 |       0.6  |       0.96 |    8.48 |            17.71 | False       | False      |
+| qr_full__no_midnight_no_last6h    |  2.7  |         0.71 |       0.45 |       0.88 |    6.99 |            16.38 | False       | True       |
+| qr_fresh84__no_midnight_no_last6h |  2.69 |         0.71 |       0.45 |       0.88 |    6.02 |            19.45 | False       | False      |
 
 ### pooled
 
@@ -203,23 +203,23 @@ Baselines:
 | method        |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score |
 |:--------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|
 | yesterday     |  3.61 |         0.86 |       0.72 |       0.93 |   12.96 |            18.23 |
-| mean7         |  3.84 |         0.86 |       0.72 |       0.93 |   12.8  |            16.85 |
-| median7       |  3.69 |         0.83 |       0.69 |       0.92 |   12.63 |            16.75 |
-| same_weekday  |  4.86 |         0.86 |       0.72 |       0.93 |   15.99 |            20.93 |
-| climatology28 |  3.44 |         0.88 |       0.75 |       0.95 |   12.53 |            17.41 |
+| mean7         |  3.84 |         0.86 |       0.72 |       0.93 |   11.55 |            16.54 |
+| median7       |  3.69 |         0.86 |       0.72 |       0.93 |   10.49 |            15.94 |
+| same_weekday  |  4.86 |         0.83 |       0.69 |       0.92 |   14.25 |            20.99 |
+| climatology28 |  3.55 |         0.86 |       0.72 |       0.93 |   12.08 |            17.16 |
 
 Models (beats_* = better than the best of the 5 baselines on this metric):
 
 | method                            |   MAE |   coverage80 |   cov_lo95 |   cov_hi95 |   width |   interval_score | beats_MAE   | beats_IS   |
 |:----------------------------------|------:|-------------:|-----------:|-----------:|--------:|-----------------:|:------------|:-----------|
-| qr_full__with_midnight            |  3.23 |         0.81 |       0.67 |       0.9  |   10.55 |            15.19 | True        | True       |
-| qr_fresh84__with_midnight         |  3.08 |         0.67 |       0.52 |       0.79 |    8.87 |            16.32 | True        | True       |
-| qr_fresh84__with_midnight+cqr     |  3.08 |         0.88 |       0.75 |       0.95 |   12.57 |            16.35 | True        | True       |
-| qr_full__no_midnight              |  3.14 |         0.86 |       0.72 |       0.93 |   10.95 |            15.84 | True        | True       |
-| qr_fresh84__no_midnight           |  2.96 |         0.69 |       0.54 |       0.81 |    7.94 |            16.44 | True        | True       |
-| qr_fresh84__no_midnight+cqr       |  2.96 |         0.86 |       0.72 |       0.93 |   11.24 |            16.56 | True        | True       |
-| qr_full__no_midnight_no_last6h    |  3.54 |         0.83 |       0.69 |       0.92 |   11.03 |            16.78 | False       | False      |
-| qr_fresh84__no_midnight_no_last6h |  3.08 |         0.69 |       0.54 |       0.81 |    9.14 |            19.04 | True        | False      |
+| qr_full__with_midnight            |  3.27 |         0.81 |       0.67 |       0.9  |   10.58 |            15.19 | True        | True       |
+| qr_fresh84__with_midnight         |  3.19 |         0.74 |       0.59 |       0.85 |    9.37 |            17.41 | True        | False      |
+| qr_fresh84__with_midnight+cqr     |  3.19 |         0.88 |       0.75 |       0.95 |   12.93 |            17.75 | True        | False      |
+| qr_full__no_midnight              |  3.16 |         0.83 |       0.69 |       0.92 |   11    |            15.95 | True        | False      |
+| qr_fresh84__no_midnight           |  2.91 |         0.74 |       0.59 |       0.85 |    8.2  |            16.98 | True        | False      |
+| qr_fresh84__no_midnight+cqr       |  2.91 |         0.86 |       0.72 |       0.93 |   10.99 |            17.09 | True        | False      |
+| qr_full__no_midnight_no_last6h    |  3.58 |         0.83 |       0.69 |       0.92 |   11.01 |            16.84 | False       | False      |
+| qr_fresh84__no_midnight_no_last6h |  3.14 |         0.74 |       0.59 |       0.85 |    9.77 |            19.82 | True        | False      |
 
 ## 3. Does 'alert running at 00:00 and for how long' help?
 
@@ -228,32 +228,32 @@ with a 95% block-bootstrap CI (blocks of 3 days within each city, 5000 resamples
 
 | comparison | period | metric | mean diff | 95% CI |
 |---|---|---|---|---|
-| qr_full__with_midnight − qr_full__no_midnight | validation | MAE | +0.05 | [-0.07, +0.16] |
-| qr_full__with_midnight − qr_full__no_midnight | validation | interval_score | -0.39 | [-1.17, +0.12] |
-| qr_full__with_midnight − qr_full__no_midnight | test | MAE | +0.09 | [-0.10, +0.21] |
-| qr_full__with_midnight − qr_full__no_midnight | test | interval_score | -0.65 | [-1.33, -0.22] |
-| qr_full__no_midnight − qr_full__no_midnight_no_last6h | validation | MAE | -0.08 | [-0.22, +0.11] |
-| qr_full__no_midnight − qr_full__no_midnight_no_last6h | validation | interval_score | -0.58 | [-1.52, +1.13] |
-| qr_full__no_midnight − qr_full__no_midnight_no_last6h | test | MAE | -0.41 | [-0.60, -0.05] |
-| qr_full__no_midnight − qr_full__no_midnight_no_last6h | test | interval_score | -0.94 | [-1.43, -0.03] |
+| qr_full__with_midnight − qr_full__no_midnight | validation | MAE | +0.04 | [-0.08, +0.17] |
+| qr_full__with_midnight − qr_full__no_midnight | validation | interval_score | -0.44 | [-1.27, +0.10] |
+| qr_full__with_midnight − qr_full__no_midnight | test | MAE | +0.10 | [-0.08, +0.24] |
+| qr_full__with_midnight − qr_full__no_midnight | test | interval_score | -0.76 | [-1.42, -0.34] |
+| qr_full__no_midnight − qr_full__no_midnight_no_last6h | validation | MAE | -0.13 | [-0.28, +0.06] |
+| qr_full__no_midnight − qr_full__no_midnight_no_last6h | validation | interval_score | -0.51 | [-1.45, +1.37] |
+| qr_full__no_midnight − qr_full__no_midnight_no_last6h | test | MAE | -0.41 | [-0.61, -0.06] |
+| qr_full__no_midnight − qr_full__no_midnight_no_last6h | test | interval_score | -0.89 | [-1.48, +0.11] |
 
 ## 4. Main model vs the best baseline on the test (per metric)
 
 | model | metric | best baseline | mean diff (model − baseline) | 95% CI |
 |---|---|---|---|---|
-| qr_fresh84__no_midnight | MAE | climatology28 | -0.48 | [-1.20, +0.37] |
-| qr_fresh84__no_midnight | interval_score | median7 | -0.31 | [-4.44, +4.25] |
-| qr_fresh84__no_midnight+cqr | MAE | climatology28 | -0.48 | [-1.20, +0.37] |
-| qr_fresh84__no_midnight+cqr | interval_score | median7 | -0.19 | [-3.73, +3.88] |
-| qr_fresh84__no_midnight_no_last6h | MAE | climatology28 | -0.36 | [-0.88, +0.44] |
-| qr_fresh84__no_midnight_no_last6h | interval_score | median7 | +2.29 | [-2.16, +5.00] |
-| qr_fresh84__with_midnight | MAE | climatology28 | -0.36 | [-0.79, +0.36] |
-| qr_fresh84__with_midnight | interval_score | median7 | -0.43 | [-4.46, +2.62] |
-| qr_fresh84__with_midnight+cqr | MAE | climatology28 | -0.36 | [-0.79, +0.36] |
-| qr_fresh84__with_midnight+cqr | interval_score | median7 | -0.41 | [-3.46, +2.19] |
-| qr_full__no_midnight | MAE | climatology28 | -0.30 | [-0.57, +0.07] |
-| qr_full__no_midnight | interval_score | median7 | -0.91 | [-3.83, +3.37] |
-| qr_full__no_midnight_no_last6h | MAE | climatology28 | +0.11 | [-0.20, +0.33] |
-| qr_full__no_midnight_no_last6h | interval_score | median7 | +0.03 | [-3.17, +4.03] |
-| qr_full__with_midnight | MAE | climatology28 | -0.21 | [-0.54, +0.16] |
-| qr_full__with_midnight | interval_score | median7 | -1.56 | [-4.31, +2.24] |
+| qr_fresh84__no_midnight | MAE | climatology28 | -0.64 | [-1.39, +0.36] |
+| qr_fresh84__no_midnight | interval_score | median7 | +1.04 | [-3.24, +4.60] |
+| qr_fresh84__no_midnight+cqr | MAE | climatology28 | -0.64 | [-1.39, +0.36] |
+| qr_fresh84__no_midnight+cqr | interval_score | median7 | +1.15 | [-2.54, +4.17] |
+| qr_fresh84__no_midnight_no_last6h | MAE | climatology28 | -0.40 | [-0.96, +0.57] |
+| qr_fresh84__no_midnight_no_last6h | interval_score | median7 | +3.88 | [-0.12, +5.79] |
+| qr_fresh84__with_midnight | MAE | climatology28 | -0.36 | [-0.88, +0.66] |
+| qr_fresh84__with_midnight | interval_score | median7 | +1.47 | [-2.74, +3.34] |
+| qr_fresh84__with_midnight+cqr | MAE | climatology28 | -0.36 | [-0.88, +0.66] |
+| qr_fresh84__with_midnight+cqr | interval_score | median7 | +1.81 | [-1.19, +3.79] |
+| qr_full__no_midnight | MAE | climatology28 | -0.39 | [-0.73, +0.04] |
+| qr_full__no_midnight | interval_score | median7 | +0.01 | [-3.08, +4.22] |
+| qr_full__no_midnight_no_last6h | MAE | climatology28 | +0.03 | [-0.36, +0.30] |
+| qr_full__no_midnight_no_last6h | interval_score | median7 | +0.90 | [-2.20, +4.65] |
+| qr_full__with_midnight | MAE | climatology28 | -0.28 | [-0.67, +0.14] |
+| qr_full__with_midnight | interval_score | median7 | -0.75 | [-3.67, +2.98] |

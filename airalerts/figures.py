@@ -96,7 +96,7 @@ def fig_cities(daily):
         ax.text(0.005, 0.92, NAME[city], transform=ax.transAxes, fontweight="bold", va="top")
         ax.set_ylabel("год / добу", fontsize=8.5)
     axes[-1].xaxis.set_major_formatter(mdates.DateFormatter("%d.%m"))
-    axes[0].set_title("Чи змінились контрольні міста разом із Києвом? Різкий стрибок — лише в Києві\n"
+    axes[0].set_title("Чи змінились контрольні міста разом із Києвом? У Харкові й Дніпрі різкого стрибка немає\n"
                       "(стовпчики — доба, лінія — 7 днів; сірі смуги — пропуск даних 29.08–02.09)")
     save(fig, "fig2_cities_daily_hours.png")
 
@@ -263,7 +263,9 @@ def fig_process(daily, records, res, gaps_fn):
         a.text(i, v + 0.03, f"{v:.2f}", ha="center", fontsize=8.5, color=INK)
     a.set_xticks(x, labels, fontsize=8.5)
     a.set_ylabel("дисперсія / середнє (тривог за добу)")
-    a.set_title("Дні «то густо, то пусто»?  Київ — так (D > 1)", fontsize=10)
+    k = rows[(rows.city == "kyiv") & (rows.period == "after")].iloc[0]
+    a.set_title(f"Розкид між днями: у Києві D > 1, але в межах тижня D = {k.dispersion_D_within_week:.2f}"
+                "\n(тобто це хвилі на тиждень-два, а не «густо-пусто» щодня)", fontsize=10)
     g = gaps_fn("kyiv", "after")
     bins = np.logspace(np.log10(1 / 60), np.log10(max(g.max(), 24)), 30)
     a2 = b
@@ -279,7 +281,7 @@ def fig_process(daily, records, res, gaps_fn):
     a2.legend(loc="upper left", fontsize=8.5)
     r = rows[(rows.city == "kyiv") & (rows.period == "after")].iloc[0]
     a2.set_title(f"Пачки з довгими перервами?  Так: CV пауз {r.quiet_gap_cv:.2f} (Пуассон = 1)", fontsize=10)
-    fig.suptitle("Чому прогноз для Києва важкий: тривоги кластеризуються, а не приходять незалежно",
+    fig.suptitle("Чому прогноз для Києва важкий: рівень змінюється хвилями, а в межах доби тривоги йдуть пачками",
                  x=0.06, ha="left", fontweight="bold", fontsize=11)
     fig.tight_layout()
     save(fig, "fig7_poisson_vs_clustering.png")
@@ -310,6 +312,28 @@ def fig_events(ev):
     save(fig, "fig8_events.png")
 
 
+# 9 ---------------------------------------------------------------------------------
+def fig_neighbours(nb):
+    """Alerts per day after/before 27.08 by oblast (official CSV only, see neighbours.py)."""
+    nb = nb.iloc[::-1].reset_index(drop=True)
+    sat = nb.share_of_day_under_alert_before >= 0.6
+    color = {"Київ": CITY["kyiv"], "довкола Києва": "#6da7ec", "інші": AXIS}
+    fig, ax = plt.subplots(figsize=(9, 4.6))
+    for i, r in nb.iterrows():
+        ax.barh(i, r.alerts_ratio, color=color[r.group], height=0.65)
+        note = (f"  насичено: під тривогою {r.share_of_day_under_alert_before:.0%} часу" if sat[i]
+                else f"  ×{r.alerts_ratio:.1f} тривог, ×{r.hours_ratio:.1f} годин")
+        ax.text(max(r.alerts_ratio, 0), i, note, va="center", fontsize=8.5, color=MUTED if sat[i] else INK2)
+    ax.axvline(1, color=INK2, lw=1, ls=(0, (4, 3)))
+    ax.set_yticks(range(len(nb)), nb.oblast.str.replace(" область", " обл."))
+    ax.set_xlim(0, nb.alerts_ratio.max() * 1.9)
+    ax.set_xlabel("тривог на добу: 27.08–06.09 (без 29.08–02.09) / 60 днів до 27.08; 1 = без змін")
+    ax.grid(axis="y", visible=False)
+    ax.set_title("Чи змінився 27.08 лише Київ?  Ні: області довкола Києва теж різко зросли\n"
+                 "(офіційний канал; «тривога в області» = будь-яка тривога в області, районі чи громаді)")
+    save(fig, "fig9_neighbour_oblasts.png")
+
+
 def main():
     import pandas as pd
     from .build import load_processed
@@ -333,6 +357,7 @@ def main():
     res, gaps = analyse(daily, records)
     fig_process(daily, records, res, lambda c, p: gaps[(c, p)])
     fig_events(pd.read_csv(RESULTS / "events_effects.csv"))
+    fig_neighbours(pd.read_csv(RESULTS / "neighbour_oblasts.csv"))
     return dn
 
 

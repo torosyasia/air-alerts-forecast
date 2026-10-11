@@ -20,6 +20,15 @@ from .models import FEATURE_SETS, N_CONF, fit_predict
 CITY_UK = {"kyiv": "Київ", "kharkiv": "Харків", "dnipro": "Дніпро"}
 
 
+def human(method):
+    """Readable Ukrainian name of a model variant for running text (technical names stay in tables)."""
+    window, fs, cqr = parse_method(method)
+    s = "квантильна регресія на " + ("всій історії" if window is None else f"останніх {window} днях")
+    s += {"with_midnight": "", "no_midnight": " без ознаки «тривога о 00:00»",
+          "no_midnight_no_last6h": " без ознак останніх 6 годин"}[fs]
+    return s + (" з конформною калібровкою" if cqr else "")
+
+
 def select_main_model(metrics):
     v = metrics[(metrics.period == "validation") & (metrics.city == "pooled") & (metrics.kind == "model")]
     return v.loc[v.interval_score.idxmin(), "method"]
@@ -62,11 +71,13 @@ def forecast_next_day():
             Q = s[int(np.ceil((len(s) + 1) * 0.8)) - 1]
             q[0], q[2] = max(q[0] - Q, 0.0), min(q[2] + Q, cap)
         m = metrics[(metrics.period == "test") & (metrics.city == city) & (metrics.method == main_model)].iloc[0]
+        bt = metrics[(metrics.period == "test") & (metrics.city == city) & (metrics.kind == "baseline")]
         rows.append({"city": city, "forecast_for": D, "issued_as_of_kyiv": f"{D} 00:00",
                      "q10_h": round(q[0], 1), "q50_h": round(q[1], 1), "q90_h": round(q[2], 1),
                      "alert_running_at_00": bool(f.active_t0), "hours_yesterday": round(f.h_lag1, 1),
                      "mean_last_7d": round(f.h_mean7, 1), "model": main_model,
                      "test_MAE_h": round(m.MAE, 2), "test_coverage80": round(m.coverage80, 2),
+                     "best_baseline_test_MAE_h": round(bt.MAE.min(), 2),
                      "data_snapshot_utc": snapshot.strftime("%Y-%m-%d %H:%M")})
     out = pd.DataFrame(rows)
     out.to_csv(RESULTS / "forecast_next_day.csv", index=False)
@@ -77,15 +88,32 @@ def markdown(out):
     D = out.forecast_for.iloc[0]
     L = [f"**Прогноз на {pd.Timestamp(D):%d.%m.%Y}** (доба 00:00–24:00 за Києвом), зроблений станом на "
          f"{pd.Timestamp(D):%d.%m} 00:00 з даних до {out.data_snapshot_utc.iloc[0]} UTC. "
-         f"Модель — `{out.model.iloc[0]}` (найменший interval score на валідації серед варіантів квантильної регресії).", "",
+         f"Модель — {human(out.model.iloc[0])}: серед варіантів у неї найменший interval score на валідації.", "",
          "| Місто | Медіана, год | 80% інтервал, год | Тривога о 00:00 | Учора, год | Середнє за 7 днів, год | MAE моделі на тесті | Покриття на тесті |",
          "|---|---|---|---|---|---|---|---|"]
     for _, r in out.iterrows():
         L.append(f"| {CITY_UK[r.city]} | **{r.q50_h:.1f}** | {r.q10_h:.1f} – {r.q90_h:.1f} | "
                  f"{'так' if r.alert_running_at_00 else 'ні'} | {r.hours_yesterday:.1f} | {r.mean_last_7d:.1f} | "
                  f"{r.test_MAE_h:.2f} | {r.test_coverage80:.0%} |")
-    L += ["", "Інтервал широкий, бо київські дні мінливі й кластеризуються (розширення 1). "
-          "Це статистичний прогноз, а не попередження про загрозу. Файл: "
+    k = out.set_index("city").loc["kyiv"]
+    from .evaluate import periods
+    _, daily = load_processed()
+    test = periods(daily)["test"]
+    mf = pd.read_csv(PROCESSED / "model_forecasts.csv")
+    mf = mf[(mf.city == "kyiv") & (mf.method == k.model) & (pd.to_datetime(mf.date).dt.date >= test[0])]
+    above = int((mf.y > mf.q50).sum())
+    L += ["", f"**Наскільки цьому вірити.** На тесті 80% інтервал накрив факт у {out.test_coverage80.min():.0%}–"
+          f"{out.test_coverage80.max():.0%} днів, а середня помилка медіани — {out.test_MAE_h.min():.1f}–"
+          f"{out.test_MAE_h.max():.1f} год. Для Києва це {k.test_MAE_h:.1f} год, а в найкращого простого прогнозу "
+          f"(baseline) — {k.best_baseline_test_MAE_h:.1f} год, тобто модель там "
+          + ("не краща за простий прогноз" if k.test_MAE_h >= k.best_baseline_test_MAE_h else "трохи краща")
+          + (f". До того ж київська медіана занижена: на тесті факт був вищим за неї в {above} з {len(mf)} днів, "
+             "бо модель навчена здебільшого на старому, спокійнішому режимі. "
+             if above >= 0.65 * len(mf) else
+             f". На тесті факт був вищим за київську медіану в {above} з {len(mf)} днів. ")
+          + "Київський прогноз — орієнтир рівня, "
+          "а не точна цифра: інтервал "
+          "широкий, бо рівень у Києві йде хвилями на тиждень-два, а тривоги в межах доби — пачками. Це статистика, а не попередження про загрозу. Файл: "
           "[`results/forecast_next_day.csv`](results/forecast_next_day.csv)."]
     return "\n".join(L)
 

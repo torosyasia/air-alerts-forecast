@@ -1,4 +1,4 @@
-"""Rewrite the auto-generated blocks of README.md (between <!-- NAME:START --> and <!-- NAME:END -->).
+"""Rewrite auto-generated blocks of README.md / REPORT.md (between <!-- NAME:START --> and <!-- NAME:END -->).
 
 Only these blocks change when the pipeline runs on new data (the forecast and the data
 dates). The narrative and the result tables describe the pinned snapshot they were written

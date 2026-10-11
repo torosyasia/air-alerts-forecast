@@ -3,16 +3,18 @@
 Periods: before = 2026-06-28..2026-08-26, after = 2026-08-27..last day.
 Episodes = merged alerts (gap <= 60 s). Missing days (D-06a) and gaps spanning them are left out.
 D = variance/mean of daily episode counts (Poisson: 1); p_overdispersion from (n-1)D ~ chi2(n-1).
+dispersion_D_within_week = the same, with the variance pooled inside consecutive 7-day blocks:
+slow week-to-week drift of the rate drops out, day-to-day clustering would stay.
 quiet_gap = time from the end of an alert to the start of the next; quiet_gap_cv = its coefficient
 of variation (Poisson: 1); ks_p_exponential = KS test of the quiet gaps against an exponential with
 the same mean (approximate: the mean is estimated); share_gaps_lt_1h vs the Poisson expectation.
 
-| city    | period   |   days |   episodes |   mean_per_day |   var_per_day |   dispersion_D |   p_overdispersion |   lag1_autocorr_daily |   quiet_gap_mean_h |   quiet_gap_cv |   ks_p_exponential |   share_gaps_lt_1h |   expected_share_lt_1h_if_poisson |
-|:--------|:---------|-------:|-----------:|---------------:|--------------:|---------------:|-------------------:|----------------------:|-------------------:|---------------:|-------------------:|-------------------:|----------------------------------:|
-| kyiv    | before   |     60 |        125 |          2.083 |         3.908 |          1.876 |              0     |                -0.202 |             10.756 |          1.435 |              0     |              0.185 |                             0.089 |
-| kyiv    | after    |     44 |        318 |          7.227 |        10.877 |          1.505 |              0.018 |                 0.299 |              2.207 |          1.498 |              0.024 |              0.41  |                             0.364 |
-| kharkiv | before   |     60 |        485 |          8.083 |         6.383 |          0.79  |              0.879 |                -0.085 |              0.681 |          1.084 |              0.278 |              0.775 |                             0.77  |
-| kharkiv | after    |     39 |        382 |          9.795 |         6.167 |          0.63  |              0.964 |                -0.088 |              0.745 |          1.247 |              0.002 |              0.772 |                             0.739 |
-| dnipro  | before   |     60 |        407 |          6.783 |         8.274 |          1.22  |              0.12  |                 0.151 |              2.768 |          1.147 |              0.034 |              0.323 |                             0.303 |
-| dnipro  | after    |     39 |        302 |          7.744 |         6.827 |          0.882 |              0.677 |                -0.06  |              2.248 |          1.19  |              0.001 |              0.429 |                             0.359 |
+| city    | period   |   days |   episodes |   mean_per_day |   var_per_day |   dispersion_D |   p_overdispersion |   dispersion_D_within_week |   p_overdispersion_within_week |   lag1_autocorr_daily |   quiet_gap_mean_h |   quiet_gap_cv |   ks_p_exponential |   share_gaps_lt_1h |   expected_share_lt_1h_if_poisson |
+|:--------|:---------|-------:|-----------:|---------------:|--------------:|---------------:|-------------------:|---------------------------:|-------------------------------:|----------------------:|-------------------:|---------------:|-------------------:|-------------------:|----------------------------------:|
+| kyiv    | before   |     60 |        125 |          2.083 |         3.908 |          1.876 |              0     |                      1.742 |                          0.001 |                -0.202 |             10.756 |          1.435 |              0     |              0.185 |                             0.089 |
+| kyiv    | after    |     44 |        318 |          7.227 |        10.877 |          1.505 |              0.018 |                      1.025 |                          0.426 |                 0.299 |              2.207 |          1.498 |              0.024 |              0.41  |                             0.364 |
+| kharkiv | before   |     60 |        485 |          8.083 |         6.383 |          0.79  |              0.879 |                      0.845 |                          0.776 |                -0.085 |              0.681 |          1.084 |              0.278 |              0.775 |                             0.77  |
+| kharkiv | after    |     39 |        382 |          9.795 |         6.167 |          0.63  |              0.964 |                      0.675 |                          0.921 |                -0.088 |              0.745 |          1.247 |              0.002 |              0.772 |                             0.739 |
+| dnipro  | before   |     60 |        407 |          6.783 |         8.274 |          1.22  |              0.12  |                      1.122 |                          0.255 |                 0.151 |              2.768 |          1.147 |              0.034 |              0.323 |                             0.303 |
+| dnipro  | after    |     39 |        302 |          7.744 |         6.827 |          0.882 |              0.677 |                      0.932 |                          0.579 |                -0.06  |              2.248 |          1.19  |              0.001 |              0.429 |                             0.359 |
 

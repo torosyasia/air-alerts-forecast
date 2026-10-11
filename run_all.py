@@ -4,19 +4,20 @@
     python run_all.py --latest   # download the newest data, re-pin it, rebuild everything
 
 Both modes regenerate results/, reports/, figures/ and the auto-generated blocks of README.md
-(forecast for the next day, data dates).
+(forecast for the next day, data dates) and REPORT.md (data dates, facts, test results).
 """
 import argparse
 import time
 
 from airalerts import evaluate, forecast, readme, stats
 from airalerts.build import build, load_processed
-from airalerts.config import PROCESSED
+from airalerts.config import PROCESSED, ROOT
 from airalerts.events import main as run_events
 from airalerts.features import build_features
 from airalerts.fetch import fetch_latest
 from airalerts.figures import main as run_figures
 from airalerts.models import main as run_models
+from airalerts.neighbours import main as run_neighbours
 from airalerts.process import main as run_process
 from airalerts.regimes import run_report as run_regimes
 
@@ -47,14 +48,17 @@ def main():
     step("regimes: change point, H1-H3", run_regimes)
     step("events: placebo permutation", run_events)
     step("Poisson vs clustering", run_process)
+    step("neighbour oblasts on 27.08", run_neighbours)
     step("facts per city", stats.main)
     fc = step("forecast for the next day", forecast.forecast_next_day)
     step("figures", run_figures)
-    step("README auto blocks", lambda: readme.update_blocks({
-        "FORECAST": forecast.markdown(fc), "DATA": forecast.data_markdown(),
-        "RESULTS": forecast.results_markdown(),
-        "FACTS": stats.markdown(stats.main())}))
-    print("[run_all] done: results/, reports/, figures/, README blocks")
+    def blocks():
+        data = forecast.data_markdown()
+        readme.update_blocks({"FORECAST": forecast.markdown(fc), "DATA": data}, ROOT / "README.md")
+        readme.update_blocks({"DATA": data, "RESULTS": forecast.results_markdown(),
+                              "FACTS": stats.markdown(stats.main())}, ROOT / "REPORT.md")
+    step("README + REPORT auto blocks", blocks)
+    print("[run_all] done: results/, reports/, figures/, README.md and REPORT.md blocks")
 
 
 if __name__ == "__main__":

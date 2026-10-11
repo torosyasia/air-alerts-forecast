@@ -10,6 +10,10 @@ gaps contain the alert itself (a "dead time") and look more regular than they ar
 D > 1, CV > 1 and an excess of short gaps mean clustering: one alert pulls others after
 it, busy and quiet days alternate. A daily rhythm alone also raises CV a little, so the
 numbers are read together with the hour-of-day pattern (reports/regimes.md, H1).
+
+D > 1 also appears when the rate itself drifts (a busy week, then a quiet one) with no
+clustering of days. dispersion_D_within_week pools the variance inside consecutive 7-day
+blocks, so slow drift drops out (added after the devil's-advocate review, agents/).
 """
 import numpy as np
 import pandas as pd
@@ -32,6 +36,11 @@ def analyse(daily, records, cities=("kyiv", "kharkiv", "dnipro")):
             n = dd.n_episodes.to_numpy(float)
             D = n.var(ddof=1) / n.mean()
             p_over = stats.chi2.sf((len(n) - 1) * D, len(n) - 1)
+            wk = np.arange(len(n)) // 7
+            ss = sum(((n[wk == k] - n[wk == k].mean()) ** 2).sum() for k in np.unique(wk))
+            df_w = len(n) - len(np.unique(wk))
+            D_w = ss / df_w / n.mean()
+            p_w = stats.chi2.sf(D_w * df_w, df_w)
             ep = ep_all[(ep_all.date >= lo) & (ep_all.date <= hi)].sort_values("start")
             g = ((ep.start.values[1:] - ep.end.values[:-1]) / np.timedelta64(1, "s")).astype(float) / 3600
             # a quiet gap is observed only if every day it touches has data
@@ -48,7 +57,8 @@ def analyse(daily, records, cities=("kyiv", "kharkiv", "dnipro")):
             gaps[(city, pname)] = g
             rows.append({"city": city, "period": pname, "days": len(n), "episodes": int(n.sum()),
                          "mean_per_day": n.mean(), "var_per_day": n.var(ddof=1), "dispersion_D": D,
-                         "p_overdispersion": p_over, "lag1_autocorr_daily": pd.Series(n).autocorr(1),
+                         "p_overdispersion": p_over,
+                         "dispersion_D_within_week": D_w, "p_overdispersion_within_week": p_w, "lag1_autocorr_daily": pd.Series(n).autocorr(1),
                          "quiet_gap_mean_h": g.mean(), "quiet_gap_cv": cv,
                          "ks_p_exponential": ks, "share_gaps_lt_1h": share_short,
                          "expected_share_lt_1h_if_poisson": exp_short})
@@ -65,6 +75,8 @@ def main():
          f"Periods: before = {PERIODS['before'][0]}..{PERIODS['before'][1]}, after = {HYP_DAY}..last day.",
          "Episodes = merged alerts (gap <= 60 s). Missing days (D-06a) and gaps spanning them are left out.",
          "D = variance/mean of daily episode counts (Poisson: 1); p_overdispersion from (n-1)D ~ chi2(n-1).",
+         "dispersion_D_within_week = the same, with the variance pooled inside consecutive 7-day blocks:",
+         "slow week-to-week drift of the rate drops out, day-to-day clustering would stay.",
          "quiet_gap = time from the end of an alert to the start of the next; quiet_gap_cv = its coefficient",
          "of variation (Poisson: 1); ks_p_exponential = KS test of the quiet gaps against an exponential with",
          "the same mean (approximate: the mean is estimated); share_gaps_lt_1h vs the Poisson expectation.", "",

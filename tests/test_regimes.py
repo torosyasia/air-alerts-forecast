@@ -36,3 +36,16 @@ def test_event_window_skips_missing_days(built):
     m2 = window_mean(y, pd.Timestamp("2026-09-02"))                 # 01.09-05.09: 03-05.09 observed
     assert np.isclose(m2, y.loc["2026-09-03":"2026-09-05"].mean())
     assert PLACEBO_MIN_GAP >= 5 and PLACEBO_RANGE > PLACEBO_MIN_GAP  # placebo windows never overlap
+
+
+def test_process_stats_on_real_data(built):
+    """Index of dispersion is var/mean of the daily counts; quiet gaps that touch a missing
+    day (29.08-02.09 for Kharkiv) are not used."""
+    from airalerts.process import analyse
+    daily, records, _ = built
+    res, gaps = analyse(daily, records, cities=("kharkiv",))
+    r = res[res.period == "after"].iloc[0]
+    d = daily[(daily.city == "kharkiv") & ~daily.missing & (daily.date >= pd.Timestamp("2026-08-27").date())]
+    assert np.isclose(r.dispersion_D, d.n_episodes.var(ddof=1) / d.n_episodes.mean())
+    g = gaps[("kharkiv", "after")]
+    assert (g > 0).all() and g.max() < 24 * 5      # no gap bridges the 5-day outage

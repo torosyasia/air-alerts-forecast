@@ -14,8 +14,8 @@ import numpy as np
 import pandas as pd
 
 from . import intervals as iv
-from .config import (ARCHIVE_COMPLETE_FROM, CITIES, EPISODE_GAP_S, OFFICIAL_COMPLETE_UNTIL,
-                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, TZ)
+from .config import (ARCHIVE_COMPLETE_FROM, CITIES, EPISODE_GAP_S, OFFICIAL_COMPLETE_UNTIL, OFFICIAL_OUTAGES,
+                     OFFICIAL_TO_ARCHIVE_CUT, PROCESSED, REPORTS, RESULTS, TZ)
 from .fetch import fetch_all
 from .sources import load_archive, load_kmda, load_official
 
@@ -72,6 +72,14 @@ def build():
     uses_official = [k for k, c in CITIES.items() if not c.kyiv_kmda]
     imputed = imputed[imputed.city.isin(uses_official)
                       & (imputed.started_at < OFFICIAL_TO_ARCHIVE_CUT.tz_convert("UTC"))]
+    # channel outages: an alert open when the channel went silent has an unknown end -> cut it
+    # at the outage start; nothing was published during the outage
+    n_cut = 0
+    for lo, hi in OFFICIAL_OUTAGES:
+        running = (official.started_at < lo) & (official.finished_at > lo)
+        n_cut += int(running.sum())
+        official.loc[running, "finished_at"] = lo
+        official = official[~((official.started_at >= lo) & (official.started_at < hi))]
     ongoing = archive.finished_at.isna()
     archive.loc[ongoing, "finished_at"] = snap  # truncated at the snapshot; that day is excluded
 
@@ -92,11 +100,23 @@ def build():
     PROCESSED.mkdir(parents=True, exist_ok=True)
     records.to_csv(PROCESSED / "city_records.csv", index=False)
     daily.to_csv(PROCESSED / "daily.csv", index=False)
+    export_daily(daily)
 
     checks = cross_checks(official, archive, kmda)
     checks["imputed_sensitivity"] = imputed_sensitivity(records, imputed, daily)
+    checks["official_outages"] = {"windows_utc": [f"{a} .. {b}" for a, b in OFFICIAL_OUTAGES],
+                                  "records_cut_at_outage_start": n_cut,
+                                  "missing_city_days": daily[daily.missing].groupby("city").size().to_dict()}
     write_report(daily, records, imputed, ongoing.sum(), st_off, st_arc, st_kmda, checks, seg, last_full_day)
     return daily, records, checks
+
+
+def export_daily(daily):
+    """Committed copy of the daily target table (rounded to 0.001 h = 3.6 s)."""
+    RESULTS.mkdir(parents=True, exist_ok=True)
+    cols = ["city", "date", "hours", "hours_yellow", "hours_red", "hours_none", "n_episodes",
+            "day_len_h", "source", "long_alert", "missing"]
+    daily[cols].round(3).to_csv(RESULTS / "daily_target.csv", index=False)
 
 
 def load_processed():
@@ -133,6 +153,15 @@ def daily_table(key, recs, imputed, parts, last_full_day):
     for s, e in zip(imputed.started_at, imputed.finished_at):
         d0, d1 = local_midnight(s).date(), local_midnight(e).date()
         out.loc[(out.index >= d0) & (out.index <= d1), "n_imputed_dropped"] += 1
+    # days overlapping a documented outage of a source in use that day are missing
+    out["missing"] = False
+    for lo, hi in OFFICIAL_OUTAGES:
+        used = out.source == "official"
+        miss = used & (bounds[1:] > lo.to_datetime64()) & (bounds[:-1] < hi.to_datetime64())
+        out.loc[miss, "missing"] = True
+    nan_cols = ["hours", "hours_none", "hours_yellow", "hours_red", "n_episodes"]
+    out[nan_cols] = out[nan_cols].astype(float)
+    out.loc[out.missing, nan_cols] = np.nan
     out.insert(0, "city", key)
     return out.reset_index()
 
@@ -163,6 +192,9 @@ def cross_checks(official, archive, kmda):
     last_off_day = (local_midnight(OFFICIAL_COMPLETE_UNTIL) - pd.Timedelta(days=2)).date()
     a = iv.hours_per_day(*iv.merge(kmda.started_at, kmda.finished_at), FIRST_DAY, last_off_day)
     b = iv.hours_per_day(*iv.merge(k_off.started_at, k_off.finished_at), FIRST_DAY, last_off_day)
+    for lo, hi in OFFICIAL_OUTAGES:  # days without official data are not a disagreement
+        keep = [not (local_midnight(lo).date() <= d <= local_midnight(hi).date()) for d in a.index]
+        a, b = a[keep], b[keep]
     res["kyiv_kmda_vs_official"] = {"days": len(a), "corr": a.corr(b), "mae_h": (a - b).abs().mean(),
                                     "days_absdiff_gt_0.1h": int(((a - b).abs() > 0.1).sum()),
                                     "period": f"{FIRST_DAY}..{last_off_day}"}

@@ -13,6 +13,7 @@ ROOT = Path(__file__).resolve().parent.parent
 RAW = ROOT / "data" / "raw"
 PROCESSED = ROOT / "data" / "processed"
 REPORTS = ROOT / "reports"
+RESULTS = ROOT / "results"  # small committed result tables, readable on GitHub
 
 TZ = "Europe/Kyiv"  # the forecast day D is [00:00, 24:00) Kyiv local time
 
@@ -53,6 +54,12 @@ OFFICIAL_COMPLETE_UNTIL = pd.Timestamp("2026-09-07 06:09", tz="UTC")
 # Switch from the official CSV to the archive at a Kyiv midnight inside the window where
 # both are complete (checked in build.py on the overlap).
 OFFICIAL_TO_ARCHIVE_CUT = pd.Timestamp("2026-09-07 00:00", tz=TZ)
+
+# Documented outages of the official channel (no posts for the whole country). Posts #334744
+# (last normal post) and #334746 (first post after); #334745 on 2026-08-30 12:42 UTC reads
+# "З технічних причин тимчасово не працює публікація повідомлень в цьому каналі".
+# Days overlapping an outage are missing (NaN) for cities whose source is the official CSV.
+OFFICIAL_OUTAGES = [(pd.Timestamp("2026-08-29 04:55:28", tz="UTC"), pd.Timestamp("2026-09-02 13:48:04", tz="UTC"))]
 
 # The official channel parser closes an alert it never saw end at start + 1 h. Such rows
 # are not observations; DECISIONS.md: drop them and report a sensitivity check.

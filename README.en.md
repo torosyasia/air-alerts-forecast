@@ -68,7 +68,10 @@ AI agents.
 
   Details: [agents/](agents/README.md).
 
-**Interactive map:** coming soon — the link will be here.
+**[Interactive map of Ukraine →](https://torosyasia.github.io/air-alerts-forecast/)** — next-day forecast for every oblast centre, change after
+27 Aug and alert hours over 30 days (statistics and a forecast, not live alerts).
+
+[![Map preview](figures/map_preview.png)](https://torosyasia.github.io/air-alerts-forecast/)
 
 **Run it** (Python 3.13):
 ```bash

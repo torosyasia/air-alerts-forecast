@@ -1662,12 +1662,14 @@ kyiv,2026-09-30,20.785,20.785,0.0,0.0,5.0,24.0,kmda,False,False
 kyiv,2026-10-01,7.816,7.816,0.0,0.0,12.0,24.0,kmda,False,False
 kyiv,2026-10-02,6.591,6.591,0.0,0.0,8.0,24.0,kmda,False,False
 kyiv,2026-10-03,3.852,3.852,0.0,0.0,9.0,24.0,kmda,False,False
-kyiv,2026-10-04,3.182,3.182,0.0,0.0,13.0,24.0,alerts_in_ua,False,False
-kyiv,2026-10-05,0.74,0.74,0.0,0.0,1.0,24.0,alerts_in_ua,False,False
-kyiv,2026-10-06,2.219,2.219,0.0,0.0,4.0,24.0,alerts_in_ua,False,False
-kyiv,2026-10-07,10.594,6.658,3.936,0.0,7.0,24.0,alerts_in_ua,False,False
-kyiv,2026-10-08,11.58,11.58,0.0,0.0,7.0,24.0,alerts_in_ua,False,False
-kyiv,2026-10-09,11.947,11.947,0.0,0.0,10.0,24.0,alerts_in_ua,False,False
+kyiv,2026-10-04,3.128,3.128,0.0,0.0,13.0,24.0,kmda,False,False
+kyiv,2026-10-05,0.738,0.738,0.0,0.0,1.0,24.0,kmda,False,False
+kyiv,2026-10-06,2.213,2.213,0.0,0.0,4.0,24.0,kmda,False,False
+kyiv,2026-10-07,10.578,6.641,3.937,0.0,7.0,24.0,kmda,False,False
+kyiv,2026-10-08,11.567,11.567,0.0,0.0,7.0,24.0,kmda,False,False
+kyiv,2026-10-09,11.977,11.977,0.0,0.0,10.0,24.0,kmda,False,False
+kyiv,2026-10-10,13.198,12.549,0.649,0.0,9.0,24.0,kmda,False,False
+kyiv,2026-10-11,5.395,5.212,0.183,0.0,8.0,24.0,kmda,False,False
 kharkiv,2022-03-16,7.576,0.0,0.0,7.576,4.0,24.0,official,False,False
 kharkiv,2022-03-17,3.857,0.0,0.0,3.857,5.0,24.0,official,False,False
 kharkiv,2022-03-18,9.894,0.0,0.0,9.894,8.0,24.0,official,False,False
@@ -3337,6 +3339,8 @@ kharkiv,2026-10-06,16.896,10.293,6.603,0.0,12.0,24.0,alerts_in_ua,False,False
 kharkiv,2026-10-07,18.379,7.512,10.868,0.0,10.0,24.0,alerts_in_ua,False,False
 kharkiv,2026-10-08,15.252,12.043,3.21,0.0,8.0,24.0,alerts_in_ua,False,False
 kharkiv,2026-10-09,7.126,3.16,3.966,0.0,11.0,24.0,alerts_in_ua,False,False
+kharkiv,2026-10-10,14.06,6.337,7.723,0.0,12.0,24.0,alerts_in_ua,False,False
+kharkiv,2026-10-11,14.716,1.97,12.746,0.0,18.0,24.0,alerts_in_ua,False,False
 dnipro,2022-03-16,4.423,0.0,0.0,4.423,3.0,24.0,official,False,False
 dnipro,2022-03-17,1.079,0.0,0.0,1.079,1.0,24.0,official,False,False
 dnipro,2022-03-18,3.251,0.0,0.0,3.251,4.0,24.0,official,False,False
@@ -5006,6 +5010,8 @@ dnipro,2026-10-06,3.96,1.796,2.164,0.0,6.0,24.0,alerts_in_ua,False,False
 dnipro,2026-10-07,6.227,4.5,1.727,0.0,8.0,24.0,alerts_in_ua,False,False
 dnipro,2026-10-08,4.22,0.0,4.22,0.0,8.0,24.0,alerts_in_ua,False,False
 dnipro,2026-10-09,9.19,1.702,7.489,0.0,15.0,24.0,alerts_in_ua,False,False
+dnipro,2026-10-10,9.749,1.567,8.182,0.0,13.0,24.0,alerts_in_ua,False,False
+dnipro,2026-10-11,8.381,0.0,8.381,0.0,13.0,24.0,alerts_in_ua,False,False
 lviv,2022-03-16,2.554,0.0,0.0,2.554,1.0,24.0,official,False,False
 lviv,2022-03-17,0.616,0.0,0.0,0.616,1.0,24.0,official,False,False
 lviv,2022-03-18,0.654,0.0,0.0,0.654,1.0,24.0,official,False,False
@@ -6675,3 +6681,5 @@ lviv,2026-10-06,0.0,0.0,0.0,0.0,0.0,24.0,alerts_in_ua,False,False
 lviv,2026-10-07,0.0,0.0,0.0,0.0,0.0,24.0,alerts_in_ua,False,False
 lviv,2026-10-08,0.0,0.0,0.0,0.0,0.0,24.0,alerts_in_ua,False,False
 lviv,2026-10-09,0.0,0.0,0.0,0.0,0.0,24.0,alerts_in_ua,False,False
+lviv,2026-10-10,0.5,0.5,0.0,0.0,1.0,24.0,alerts_in_ua,False,False
+lviv,2026-10-11,0.0,0.0,0.0,0.0,0.0,24.0,alerts_in_ua,False,False

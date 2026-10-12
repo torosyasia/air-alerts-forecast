@@ -57,15 +57,17 @@ def outage_days():
     return out
 
 
-def analyse(raw=None):
+def analyse(raw=None, groups=None):
+    """groups: {oblast: group label}; default GROUPS (fig9). national.py passes every oblast."""
     raw = load() if raw is None else raw
+    groups = groups or GROUPS
     first = HYP_DAY - timedelta(days=60)
     gap = outage_days()
     days = [d for d in pd.date_range(first, LAST_DAY).date if d not in gap]
     before = [d for d in days if d < HYP_DAY]
     after = [d for d in days if d >= HYP_DAY]
     series = {}
-    for ob in GROUPS:
+    for ob in groups:
         r = raw[raw.oblast == ob]
         n = episodes(r.assign(city="x"), "x").groupby("date").size().reindex(days, fill_value=0)
         h = pd.Series(iv.hours_per_day(*iv.merge(r.started_at, r.finished_at), first, LAST_DAY),
@@ -75,7 +77,7 @@ def analyse(raw=None):
     rows = []
     for ob, (n, h) in series.items():
         rows.append({
-            "oblast": ob, "group": GROUPS[ob],
+            "oblast": ob, "group": groups[ob],
             "share_of_day_under_alert_before": h[before].mean() / 24,
             "alerts_per_day_before": n[before].mean(), "alerts_per_day_after": n[after].mean(),
             "alerts_ratio": n[after].mean() / n[before].mean(),

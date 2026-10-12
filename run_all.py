@@ -18,6 +18,7 @@ from airalerts.fetch import fetch_latest
 from airalerts.figures import main as run_figures
 from airalerts.models import main as run_models
 from airalerts.neighbours import main as run_neighbours
+from airalerts.national_map import main as run_national
 from airalerts.process import main as run_process
 from airalerts.regimes import run_report as run_regimes
 
@@ -52,6 +53,7 @@ def main():
     step("facts per city", stats.main)
     fc = step("forecast for the next day", forecast.forecast_next_day)
     step("figures", run_figures)
+    step("all Ukraine: target, shared model, map", run_national)
     def blocks():
         data = forecast.data_markdown()
         readme.update_blocks({"FORECAST": forecast.markdown(fc), "DATA": data}, ROOT / "README.md")

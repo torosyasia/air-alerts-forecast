@@ -6,17 +6,17 @@
     "version": "7ccd436"
   },
   "alerts_in_ua": {
-    "url": "https://raw.githubusercontent.com/JustJimer/ukraine-air-alert-stats/3b0e7f1dc7e0e04e85db73f8a24b3e587d3e05ee/archive/alerts_in_ua.csv",
-    "file": "alerts_in_ua_3b0e7f1.csv",
-    "sha256": "e140f876e2cc3cb4160c9d65c72297747abf53e29d7cc316c05452969d682053",
-    "version": "3b0e7f1"
+    "url": "https://raw.githubusercontent.com/JustJimer/ukraine-air-alert-stats/c5b3bd012c7694e63115999a7bbd0b683eaa8d24/archive/alerts_in_ua.csv",
+    "file": "alerts_in_ua_c5b3bd0.csv",
+    "sha256": "fe79c5726a1a9db9f560d6dad1de1b46f16d93b9b44ff54a2078228cf56cbc0d",
+    "version": "c5b3bd0"
   },
   "kmda": {
     "url": "https://data.gov.ua/dataset/83eda433-b4d9-47ac-89a0-5868dd4d5ce6/resource/08559e6a-863f-4d9b-86c1-d23e8b8b4630/download/airalerts.json",
-    "file": "kmda_airalerts_2026-10-10.json",
-    "sha256": "0c9ef4fc776ef695d818127ff5d11f9a9e994acf703c063e97b89f332c07e44b",
-    "version": "2026-10-10",
+    "file": "kmda_airalerts_2026-10-12.json",
+    "sha256": "a4755fa65467a52ac3d559212381b6fab53b76b5f85785f185a2892ab27de7b2",
+    "version": "2026-10-12",
     "committed": true,
-    "kyiv_archive_from": "2026-10-04"
+    "kyiv_archive_from": "2026-10-12"
   }
 }

@@ -1,4 +1,4 @@
 city,forecast_for,issued_as_of_kyiv,q10_h,q50_h,q90_h,alert_running_at_00,hours_yesterday,mean_last_7d,model,test_MAE_h,test_coverage80,best_baseline_test_MAE_h,data_snapshot_utc
-kyiv,2026-10-10,2026-10-10 00:00,0.0,4.4,11.9,False,11.9,6.3,qr_full__with_midnight,4.82,0.79,4.3,2026-10-10 09:50
-kharkiv,2026-10-10,2026-10-10 00:00,7.9,13.1,17.6,True,7.1,16.4,qr_full__with_midnight,2.69,0.86,2.26,2026-10-10 09:50
-dnipro,2026-10-10,2026-10-10 00:00,2.3,5.4,8.0,False,9.2,5.0,qr_full__with_midnight,2.28,0.79,2.56,2026-10-10 09:50
+kyiv,2026-10-12,2026-10-12 00:00,0.0,4.9,11.4,False,5.4,8.0,qr_full__with_midnight,4.3,0.79,4.29,2026-10-12 10:46
+kharkiv,2026-10-12,2026-10-12 00:00,9.6,15.5,20.1,True,14.7,15.3,qr_full__with_midnight,2.38,0.86,2.2,2026-10-12 10:46
+dnipro,2026-10-12,2026-10-12 00:00,3.5,6.4,9.9,True,8.4,6.7,qr_full__with_midnight,2.36,0.79,2.92,2026-10-12 10:46

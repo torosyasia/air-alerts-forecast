@@ -17,6 +17,9 @@ from .evaluate import FORECAST_CITIES
 from .features import features_at
 from .models import FEATURE_SETS, N_CONF, fit_predict
 
+# The forecast block says the median is biased when its mean shift on the test is at least
+# this share of the test MAE (a systematic error, not just more days on one side).
+BIAS_SHARE_OF_MAE = 0.25
 CITY_UK = {"kyiv": "Київ", "kharkiv": "Харків", "dnipro": "Дніпро"}
 
 
@@ -103,7 +106,8 @@ def markdown(out):
     mf = mf[(mf.city == "kyiv") & (mf.method == k.model) & (pd.to_datetime(mf.date).dt.date >= test[0])]
     above = int((mf.y > mf.q50).sum())
     worse = k.test_MAE_h >= k.best_baseline_test_MAE_h
-    low = above >= 0.65 * len(mf)
+    bias = float((mf.y - mf.q50).mean())          # > 0: the median is too low on average
+    shifted = abs(bias) >= BIAS_SHARE_OF_MAE * k.test_MAE_h
     L += ["", f"**Наскільки цьому вірити.** На тесті 80% інтервал накрив факт у {out.test_coverage80.min():.0%}–"
           f"{out.test_coverage80.max():.0%} днів, а медіана помилялась у середньому на {out.test_MAE_h.min():.1f}–"
           f"{out.test_MAE_h.max():.1f} год. "
@@ -111,7 +115,9 @@ def markdown(out):
              f"{k.best_baseline_test_MAE_h:.1f} год)" if worse else
              f"Для Києва модель трохи краща за найкращий простий прогноз ({k.test_MAE_h:.1f} проти "
              f"{k.best_baseline_test_MAE_h:.1f} год)")
-          + (f", а її медіана занижена: факт був вищим у {above} з {len(mf)} днів. " if low else ". ")
+          + ((f", а її медіана {'занижена' if bias > 0 else 'завищена'}: у середньому факт "
+              f"{'вищий' if bias > 0 else 'нижчий'} на {abs(bias):.1f} год (вищий у {above} з {len(mf)} днів). ")
+             if shifted else ". ")
           + "Тож для Києва дивіться на інтервал, а не на точну цифру; це статистика, а не попередження про "
           "загрозу. Файл: [`results/forecast_next_day.csv`](results/forecast_next_day.csv)."]
     return "\n".join(L)

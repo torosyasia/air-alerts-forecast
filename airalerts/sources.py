@@ -28,7 +28,7 @@ def _covers(df, city, oblast_col, level_col, raion_col, hromada_col):
     return m
 
 
-def load_official():
+def load_official(cities=None):
     """Official channel CSV (UTC). Exact duplicate rows are dropped; rows whose end was
     imputed by the upstream parser (duration exactly 1 h) are flagged, not yet dropped."""
     raw = pd.read_csv(source_path("official"))
@@ -38,7 +38,7 @@ def load_official():
     for c in ("started_at", "finished_at"):
         raw[c] = pd.to_datetime(raw[c], utc=True, format="mixed")
     parts = []
-    for city in CITIES.values():
+    for city in (cities or CITIES).values():
         m = _covers(raw, city, "oblast", "level", "raion", "hromada")
         d = raw[m]
         parts.append(pd.DataFrame({
@@ -54,7 +54,7 @@ def load_official():
     return out, stats
 
 
-def load_archive():
+def load_archive(cities=None):
     """alerts.in.ua archive (UTC), air_raid alerts only, with yellow/red level."""
     raw = pd.read_csv(source_path("alerts_in_ua"))
     stats = {"rows_raw": len(raw), "rows_not_air_raid": int((raw.alert_type != "air_raid").sum())}
@@ -63,7 +63,7 @@ def load_archive():
         raw[c] = pd.to_datetime(raw[c], utc=True, format="mixed")
     snapshot = max(raw.started_at.max(), raw.finished_at.max())
     parts = []
-    for city in CITIES.values():
+    for city in (cities or CITIES).values():
         d = raw[(raw.location_oblast == city.oblast_uk) & raw.location_title.isin(city.archive_titles)]
         parts.append(pd.DataFrame({
             "source": "alerts_in_ua", "city": city.key, "unit_type": d["location_type"],

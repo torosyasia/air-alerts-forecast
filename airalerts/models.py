@@ -43,11 +43,11 @@ def fit_predict(train, x_new, cols):
     return sorted(out)  # no quantile crossing
 
 
-def rolling_forecasts(X, daily, days, cols, window=None, name=None):
+def rolling_forecasts(X, daily, days, cols, window=None, name=None, cities=None):
     """Forecast every day in `days` for every city, refitting on rows with date < D."""
     cap = daily.set_index(["city", "date"]).day_len_h
     rows = []
-    for city in FORECAST_CITIES:
+    for city in (cities or FORECAST_CITIES):
         xc = X[X.city == city].set_index("date").sort_index()
         for D in days:
             train = xc[xc.index < D]

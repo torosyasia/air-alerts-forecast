@@ -205,7 +205,7 @@
       const f = o.forecast, a = o.accuracy;
       h += `<div class="row"><h3>Прогноз на ${dmy(G.forecast_for)}</h3><div class="big">${f.q50} год</div>
         <div class="note">80% інтервал: ${f.q10}–${f.q90} год · учора ${f.yesterday} год · тривога о 00:00: ${f.alert_at_00 ? "так" : "ні"}</div></div>`;
-      const better = a.beats_mae ? `<span class="good">модель точніша</span>` : `<span class="bad">модель не точніша</span>`;
+      const better = a.beats_mae ? `<span class="good">модель точніша за середньою помилкою</span>` : `<span class="bad">модель не точніша за середньою помилкою</span>`;
       h += `<div class="row"><h3>Наскільки точна модель тут</h3>
         <div>Середня помилка на тесті (${a.days} днів): модель <b>${a.model_mae} год</b>, найкращий простий прогноз (${a.base_name}) <b>${a.base_mae} год</b> — ${better}.</div>
         <div class="note">Факт потрапив в 80% інтервал у ${Math.round(a.coverage * 100)}% днів.</div></div>`;

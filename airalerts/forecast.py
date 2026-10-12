@@ -91,7 +91,9 @@ def markdown(out):
              f"{k.best_baseline_test_MAE_h:.1f} год)")
           + ((f", а її медіана {'занижена' if bias > 0 else 'завищена'}: у середньому факт "
               f"{'вищий' if bias > 0 else 'нижчий'} на {abs(bias):.1f} год (вищий у {above} з {len(mf)} днів). ")
-             if shifted else ". ")
+             if shifted and (above >= 0.6 * len(mf) if bias > 0 else above <= 0.4 * len(mf)) else
+             (f"; факт у середньому вищий за медіану на {bias:.1f} год, хоча вищий лише в {above} з {len(mf)} днів "
+              "(кілька дуже важких днів тягнуть середнє вгору). ") if shifted else ". ")
           + "Тож для Києва дивіться на інтервал, а не на точну цифру; це статистика, а не попередження про "
           "загрозу. Файл: [`results/forecast_next_day.csv`](results/forecast_next_day.csv)."]
     return "\n".join(L)

@@ -118,10 +118,16 @@ def change_after_break(daily, before_days=60):
         b = d[(d.date >= lo) & (d.date < BREAK)].dropna(subset=["hours"])
         a = d[d.date >= BREAK].dropna(subset=["hours"])
         hb, ha = b.hours.mean(), a.hours.mean()
+        reform = pd.Timestamp("2026-09-06").date()
+        a1, a2 = a[a.date < reform], a[a.date >= reform]       # before / after the 06.09 reform
         rows.append({"city": key, "hours_before": hb, "hours_after": ha, "hours_delta": ha - hb,
                      "hours_ratio": ha / hb if hb > 0 else np.nan,
                      "alerts_before": b.n_episodes.mean(), "alerts_after": a.n_episodes.mean(),
                      "days_before": len(b), "days_after": len(a),
+                     # 27.08-05.09: one source (official CSV, outage days missing) and before the reform;
+                     # 06.09-: after the reform and, for all but Kyiv, from alerts.in.ua
+                     "hours_27_08_05_09": a1.hours.mean(), "days_27_08_05_09": len(a1),
+                     "hours_from_06_09": a2.hours.mean(),
                      "window": f"{lo:%d.%m}–{(BREAK - pd.Timedelta(days=1)):%d.%m} проти "
                                f"{BREAK:%d.%m}–{d.date.max():%d.%m}"})
     return pd.DataFrame(rows)

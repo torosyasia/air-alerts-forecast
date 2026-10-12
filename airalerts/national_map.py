@@ -169,7 +169,7 @@ def preview(data, geo):
         if v is not None:
             ring = np.array(polys[0][0])
             cx, cy = ring[:, 0].mean() * k, ring[:, 1].mean()
-            ax.text(cx, cy, f"{v:.0f}", color="white", ha="center", va="center", fontsize=8, fontweight="bold")
+            ax.text(cx, cy, f"{int(np.floor(v + 0.5))}", color="white", ha="center", va="center", fontsize=8, fontweight="bold")
     ax.autoscale_view()
     ax.set_aspect("equal")
     ax.axis("off")

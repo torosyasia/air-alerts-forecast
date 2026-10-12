@@ -1,25 +1,37 @@
-# Air raid alerts: a regime change in Kyiv and an honest forecast
+# Air-raid alerts in autumn 2026: what changed, where, and can it be forecast
 
 *Short English version. The full project is in Ukrainian: [README.md](README.md),
 details in [REPORT.md](REPORT.md).*
 
-Test task, stage 2, KSE Agentic AI School 2026 (October 2026). Author: Toros-Manuk
-Petrychenko, 2nd-year Applied Mathematics, KSE. The project analyses air-raid alert time
-series and makes a next-day forecast without leakage, in Python. It was built together with
-AI agents.
+Test task, stage 2, KSE Agentic AI School 2026 (October 2026), by Toros-Manuk Petrychenko,
+2nd-year Applied Mathematics, KSE, built together with AI agents. Python, time-series
+analysis, a next-day forecast without leakage.
 
-> **Question.** Did the air-raid alert regime in Kyiv change in autumn 2026, and how do you
-> honestly forecast daily alert hours when the regime changes?
+We started by asking whether Kyiv's alert regime changed. The break turned out to be
+regional, so we extended the analysis to all oblast centres, built a shared forecast model
+and a map.
+
+> **Question.** What changed in the air-raid alert regime in autumn 2026, where, and can
+> daily alert hours be forecast honestly when the regime changes?
 >
 > **Short answer.**
-> - **Yes.** Kyiv's regime changed abruptly on **27 Aug 2026**, 10 days before the alert
->   rules changed. Alert hours per day went from **1.7 to 8.1**, mostly through many more
->   separate alerts, which looks like frequent attacks by small groups of drones.
-> - **Regional.** The break is strongest in Kyiv and around it.
-> - **Hard to forecast.** The honest forecast is a wide interval. For Kyiv the model is only
->   slightly better than "same as yesterday".
+> - **Regime.**
+>   - Kyiv had an abrupt break on 27 Aug 2026, 10 days before the alert rules changed.
+>     Alert hours per day went from **1.7 to 8.1**, mostly because there were many more
+>     separate alerts.
+>   - The break is regional: strongest and lasting in Kyiv, Kyiv oblast (Bila Tserkva) and
+>     Cherkasy oblast (Cherkasy). There is no rise in the east.
+>   - Since 6 Sep, ~92% of Kyiv's alert hours are yellow level, i.e. drones.
+> - **Forecast.** One shared model for 23 oblast centres.
+>   - Its intervals are honest: coverage 0.82 against a nominal 0.80.
+>   - Mean error is 2.14 h against 2.31 h for the best simple baseline.
+>   - On the front (Chernihiv, Sumy, Kharkiv oblasts) it is worse than "same as yesterday".
+> - **Trust.**
+>   - Three official alert sources, cross-checked against each other.
+>   - 64 tests on real data, including leakage tests.
+>   - 4 independent AI agents checked the numbers, reproducibility, conclusions and leaks.
 >
-> **Why this question.** The exact moment of the next alert cannot be predicted. So we look
+> **Why this question.** The exact moment of the next alert cannot be predicted, so we look
 > at the regime and at alert hours per day, with an uncertainty interval.
 
 **Next-day forecast and map** — [interactive map of Ukraine →](https://torosyasia.github.io/air-alerts-forecast/). It shows a forecast
@@ -42,37 +54,26 @@ statistics and a forecast, not live alerts.
 
 | Key numbers (data snapshot 12 Oct 2026, last full day 11 Oct) | |
 |---|---|
-| Kyiv alert hours per day: 60 days before → after 27 Aug | **1.70 → 8.09** |
-| Separate alerts per day | 2.1 → 7.3 (about 80% of the rise in hours) |
-| Alert hours per day right after the break (27 Aug – 5 Sep, before the reform) | Kyiv 1.7 → 9.4, Bila Tserkva 1.1 → 6.7, Cherkasy 2.4 → 10.0, and the jump holds; the west grew from a tiny base, mostly after 6 Sep; Kharkiv 18.5 → 17.6 |
-| Kyiv since 6 Sep: yellow (drone) level | 7.1 of 7.7 alert hours per day (~92%) |
-| October vs September (11 days) | significantly more alerts only in Dnipro and Rivne, out of 23 cities; no wider wave detected |
-| Forecast, 23 cities: shared model vs best simple baseline | mean error 2.14 vs 2.31 h; interval score 10.75 vs 10.50; coverage 0.82 |
-| Kyiv: model vs "same as yesterday" | 4.22 vs 4.29 h |
+| Alert hours per day right after the break (27 Aug – 5 Sep, before the reform), by oblast centre | Kyiv 1.7 → 9.4, Kyiv oblast (Bila Tserkva) 1.1 → 6.7, Cherkasy oblast (Cherkasy) 2.4 → 10.0, and the jump holds; western oblasts grew from a tiny base, mostly after 6 Sep; Kharkiv oblast (Kharkiv) 18.5 → 17.6 |
+| October vs September (11 days) | significantly more alerts only in Dnipropetrovsk oblast (Dnipro) and Rivne oblast (Rivne), out of 23; no wider wave detected |
 
-**The model in two steps.**
-- **v1:** separate models for 3 cities. For Kyiv it was no better than "same as yesterday",
-  and its median was too low by 2.5 h on average, with only 32 days of the new regime.
-- **v2:** one shared model for 23 cities with a per-city base level, trained on 626 new-regime
-  city-days. Its main gain is honest intervals: coverage 0.82 against 0.71 for separate
-  models, at almost the same mean error (2.14 vs 2.10 h).
-- **Kyiv.** v2 is slightly better than the best simple baseline: 4.22 vs 4.29 h. That is a
-  noise-sized gap on 14 days.
+**The model: v1 → v2.**
+- **v1:** separate models for 3 cities, no better than "same as yesterday" for Kyiv.
+- **v2:** one shared model for 23 cities with 626 new-regime city-days. Its main gain is
+  honest intervals (coverage 0.82 vs 0.71) at almost the same accuracy
+  ([REPORT §6](REPORT.md#6-прогноз-від-v1-до-v2-результати-по-містах)).
 
-A global model makes sense here: there are many series, each with little history of the new
-regime. By mean error it beats the best simple baseline in 11 of 23 cities, mostly in the
-centre and the rear (Dnipro 2.29 vs 2.92 h). It loses on the front (Chernihiv 3.28 vs 2.07 h),
-where "same as yesterday" is almost perfect.
+**Limitations.**
+- A 14-day test: for Kyiv the gap to "same as yesterday" (4.22 vs 4.29 h) is within noise.
+- Outside Kyiv the source changes on 7 Sep, right after the 6 Sep reform.
+- We observe alerts, not attacks.
+- The Bayes factor is inflated, since days are not independent; the break date is robust.
 
 **Why it matters.**
-- **For the city.** Under resolution No 1092, at the yellow level businesses may keep working
-  if they have a shelter, and the Kyiv metro runs fully. So in Kyiv these rules now cover
-  ~92% of alert time.
-- **For forecasting.** Models trained on one city's history break exactly at a regime
-  change. A shared model over many cities gave more honest intervals. The next step is
-  detecting the change fast.
-- **For data.** The open dataset of the official channel silently stopped after 7 Sep, and
-  the channel had an outage on 29 Aug – 2 Sep. Volunteer data missed long alerts. We built a
+- **City.** Since 6 Sep, ~92% of Kyiv's alert time is yellow level, when under resolution
+  No 1092 businesses with a shelter may keep working and the metro runs fully.
+- **Forecasting.** Models trained on one city's history break at a regime change.
+- **Data.** The official channel's open dataset silently stopped on 7 Sep. We built a
   checked series from three cross-validated sources.
 
 **How it was done: a human + AI agents.**
@@ -80,13 +81,11 @@ where "same as yesterday" is almost perfect.
   merged every PR. Claude Code wrote the code and the analysis.
 - **Rules set in advance:** no synthetic data, a strict leakage definition, a decision log,
   one commit per step.
-- **Four independent checker agents** reviewed the repository without seeing the process:
-  - a **reviewer** checked ~170 numbers;
-  - a **reproducer** ran everything from a clean clone; results are bit-identical;
-  - a **devil's advocate** refuted the claim "the break is Kyiv-only";
-  - a **leak hunter** found a real, small leak, which was fixed test-first.
-
-  Details: [agents/](agents/README.md); the human–AI chat log goes to [ai_log/](ai_log/).
+- **Four independent checker agents** reviewed the repository without seeing the process.
+  The reviewer checked the numbers, and the reproducer re-ran everything bit-identically
+  from a clean clone. The devil's advocate refuted "the break is Kyiv-only", and the leak
+  hunter found a small real leak, fixed test-first. See [agents/](agents/README.md); the
+  human–AI chat log is in [ai_log/](ai_log/).
 
 **Run it** (Python 3.13):
 ```bash

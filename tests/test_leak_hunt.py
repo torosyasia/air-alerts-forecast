@@ -221,27 +221,31 @@ def test_main_model_choice_ignores_test_period():
 
 
 # --- clean: the published next-day forecast ------------------------------------------
-def test_next_day_forecast_ignores_records_after_t0(built, monkeypatch, tmp_path):
-    """forecast_next_day() for D = last day + 1 must not change when everything after
-    t0 = D 00:00 is altered (future records re-timed, alerts running at t0 given another end)."""
-    import airalerts.forecast as FC
-    for f in ("features.csv", "model_forecasts.csv"):
+def test_next_day_forecast_ignores_records_after_t0(monkeypatch, tmp_path):
+    """The published next-day forecast (since 12.10: the shared all-Ukraine model,
+    national_models.forecast_next_day_all) for D = last day + 1 must not change when everything
+    after t0 = D 00:00 is altered (future records re-timed, alerts running at t0 given another
+    end). Adapted by Claude Code from the agent's original test of forecast.forecast_next_day,
+    which now only reads the all-Ukraine output."""
+    import airalerts.national_models as NM
+    for f in ("national_features.csv", "national_records.csv"):
         if not (PROCESSED / f).exists():
             pytest.skip("run `python run_all.py` first")
-    if not (RESULTS / "metrics_validation_test.csv").exists():
+    if not (RESULTS / "national_city_test.csv").exists():
         pytest.skip("run `python run_all.py` first")
-    shutil.copy(RESULTS / "metrics_validation_test.csv", tmp_path / "metrics_validation_test.csv")
-    monkeypatch.setattr(FC, "RESULTS", tmp_path)
-    records, daily = B.load_processed()
+    ct = pd.read_csv(RESULTS / "national_city_test.csv")
+    main = NM.select_main(pd.read_csv(RESULTS / "national_metrics.csv"))
+    monkeypatch.setattr(NM, "RESULTS", tmp_path)
+    records, daily = NM.load_national()
     D = (pd.Timestamp(daily.date.max()) + pd.Timedelta(days=1)).date()
     t0 = origin(D)
     future = records.started_at >= t0
     running = (records.started_at < t0) & (records.finished_at > t0)
-    cols = ["q10_h", "q50_h", "q90_h", "alert_running_at_00", "hours_yesterday", "mean_last_7d", "model"]
+    cols = ["city", "q10_h", "q50_h", "q90_h", "alert_running_at_00", "hours_yesterday", "mean_last_7d", "model"]
 
     def run_with(rec):
-        monkeypatch.setattr(FC, "load_processed", lambda: (rec, daily))
-        return FC.forecast_next_day()[cols]
+        monkeypatch.setattr(NM, "load_national", lambda: (rec, daily))
+        return NM.forecast_next_day_all(main, ct)[cols]
 
     base = run_with(records)
     p1 = records.copy()

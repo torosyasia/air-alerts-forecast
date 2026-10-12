@@ -22,7 +22,14 @@
   .meta { color: var(--ink2); font-size: 13px; margin-top: 8px; }
   .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px;
     max-width: 1200px; margin: 0 auto; padding: 8px 16px 16px; }
+  @media (min-width: 861px) {
+    main { position: sticky; top: 8px; align-self: start; }
+    aside { position: sticky; top: 8px; max-height: calc(100vh - 16px); overflow-y: auto; overscroll-behavior: contain; }
+  }
   @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; } }
+  .tip { min-height: 18px; font-size: 12px; color: var(--ink); margin-top: 2px; }
+  .bar { cursor: pointer; }
+  .bar.on { stroke: #fff; stroke-width: 1; }
   .modes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
   .modes button { background: var(--panel); color: var(--ink2); border: 1px solid var(--edge);
     border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
@@ -111,9 +118,9 @@
   const MODES = {
     forecast: { val: o => o.forecast && o.forecast.q50, t: v => v / 20, label: v => v.toFixed(0),
       legend: "медіана прогнозу, год на добу: 0 → 20+" },
-    change: { val: o => o.change && !o.change.saturated && o.status !== "occupied" ? o.change.hours_ratio : null,
-      t: v => Math.log2(Math.max(v, 1)) / 3, label: v => "×" + v.toFixed(1),
-      legend: "у скільки разів зросли години тривоги в області після 27.08: ×1 → ×8+" },
+    change: { val: o => o.change && o.status !== "occupied" ? o.change.delta : null,
+      t: v => v / 8, label: v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(1),
+      legend: "приріст годин тривоги на добу в обласному центрі після 27.08: 0 (або менше) → +8" },
     h30: { val: o => o.h30, t: v => v / 20, label: v => v.toFixed(0),
       legend: "середньо годин тривоги на добу за 30 днів: 0 → 20+" },
   };
@@ -139,7 +146,7 @@
   });
   feats.forEach(f => {
     const name = f.properties.name, o = O[name] || {}, c = centroid(f);
-    const dy = name === "м. Київ" ? -16 : 6;
+    const dy = name === "м. Київ" ? -16 : name === "Київська область" ? 30 : 6;
     const t = el("text", { x: c[0], y: c[1] + dy, class: "lbl" }); svg.appendChild(t); labels[name] = t;
     if (o.deep) svg.appendChild(el("circle", { cx: c[0], cy: c[1] + (name === "м. Київ" ? 0 : 16), r: 6, class: "star" }));
   });
@@ -149,10 +156,9 @@
     for (const name in paths) {
       const o = O[name] || {}, v = M.val(o);
       let fill = "var(--grey)";
-      if (mode === "change" && o.change && o.change.saturated && o.status !== "occupied") fill = "var(--sat)";
-      else if (v !== null && v !== undefined) fill = red(M.t(v));
+      if (v !== null && v !== undefined) fill = red(M.t(v));
       paths[name].setAttribute("fill", fill);
-      const showLbl = v !== null && v !== undefined && !(name === "Київська область" && mode !== "change");
+      const showLbl = v !== null && v !== undefined;
       labels[name].textContent = showLbl ? M.label(v) : "";
     }
     document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
@@ -160,28 +166,39 @@
     document.getElementById("legend").innerHTML =
       `<span>${M.legend}</span><span class="grad" style="background:${g}"></span>` +
       `<span><span class="sw" style="background:var(--grey)"></span>окуповано / немає даних</span>` +
-      (mode === "change" ? `<span><span class="sw" style="background:var(--sat)"></span>насичено: тривога в області майже завжди</span>` : "") +
+      (mode === "change" ? `<span>години рахуються для обласного центру; для Київської області — Біла Церква</span>` : "") +
       `<span>○ детально досліджені міста</span>`;
   }
 
+  const dayOf = i => { const d = new Date(G.series_from + "T00:00:00Z"); d.setUTCDate(d.getUTCDate() + i);
+    return `${String(d.getUTCDate()).padStart(2, "0")}.${String(d.getUTCMonth() + 1).padStart(2, "0")}`; };
   function spark(series) {
     const w = 300, h = 70, n = series.length, bw = w / n;
-    let s = `<svg viewBox="0 0 ${w} ${h + 14}" width="100%" role="img" aria-label="Години тривоги за 30 днів">`;
+    let s = `<svg viewBox="0 0 ${w} ${h + 14}" width="100%" role="img" aria-label="Години тривоги за 30 днів" class="spark">`;
     series.forEach((v, i) => {
-      if (v === null) { s += `<rect x="${i * bw + 1}" y="${h - 2}" width="${bw - 2}" height="2" fill="#555"/>`; return; }
-      const bh = Math.max(1, v / 24 * h);
-      s += `<rect x="${(i * bw + 1).toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${bh.toFixed(1)}" fill="${red(v / 20)}"><title>${v} год</title></rect>`;
+      const txt = `${dayOf(i)}: ${v === null ? "немає даних" : v + " год"}`;
+      // a full-height transparent target so short bars are easy to hover or tap
+      s += `<rect class="hit" data-t="${txt}" data-i="${i}" x="${(i * bw).toFixed(1)}" y="0" width="${bw.toFixed(1)}" height="${h}" fill="transparent"/>`;
+      const bh = v === null ? 2 : Math.max(1, v / 24 * h);
+      s += `<rect class="bar" data-i="${i}" x="${(i * bw + 1).toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${bh.toFixed(1)}" fill="${v === null ? "#555" : red(v / 20)}" pointer-events="none"/>`;
     });
     s += `<text x="0" y="${h + 12}" fill="#888" font-size="10">${dmy(G.series_from)}</text>`;
     s += `<text x="${w}" y="${h + 12}" fill="#888" font-size="10" text-anchor="end">${dmy(G.series_to)}</text></svg>`;
-    return s;
+    return s + `<div class="tip" id="tip">Наведіть або торкніться стовпчика</div>`;
+  }
+  function wireSpark() {
+    const svgS = document.querySelector("svg.spark"); if (!svgS) return;
+    const show = e => { const t = e.target.closest("rect.hit"); if (!t) return;
+      document.getElementById("tip").textContent = t.dataset.t;
+      svgS.querySelectorAll(".bar").forEach(b => b.classList.toggle("on", b.dataset.i === t.dataset.i)); };
+    ["mouseover", "click", "touchstart"].forEach(ev => svgS.addEventListener(ev, show, { passive: true }));
   }
 
   function select(name) {
     if (selected) paths[selected].classList.remove("sel");
     selected = name; paths[name].classList.add("sel");
     const o = O[name] || {}; let h = `<h2>${name}</h2>`;
-    h += `<div class="sub">${o.centre ? "Обласний центр: " + o.centre : ""}</div>`;
+    h += `<div class="sub">${o.centre ? (o.representative ? "Місто-представник: " : "Обласний центр: ") + o.centre : ""}</div>`;
     if (o.deep) h += `<div><span class="tag">☆ детально досліджено: ${o.deep.role}</span> <a href="${o.deep.link}">аналіз →</a></div>`;
     if (o.note) h += `<p class="note">${o.note}</p>`;
     if (o.forecast) {
@@ -194,12 +211,19 @@
         <div class="note">Факт потрапив в 80% інтервал у ${Math.round(a.coverage * 100)}% днів.</div></div>`;
     }
     if (o.series30) h += `<div class="row"><h3>Години тривоги за 30 днів · в середньому ${o.h30} год/добу</h3>${spark(o.series30)}</div>`;
+    const fmtR = r => (r === null || r === undefined || !isFinite(r) || r <= 0) ? "—" : "×" + r.toFixed(1);
     if (o.change) {
-      const c = o.change;
-      h += `<div class="row"><h3>Зміна після 27.08 (будь-яка тривога в області)</h3>` +
-        (c.saturated ? `<div class="note">Насичено: ще до 27.08 тривога в області тривала ${Math.round(c.share_before * 100)}% часу, тож зростання тут не видно.</div>`
-          : `<div>Годин на добу: ${c.hours_before} → ${c.hours_after} (×${c.hours_ratio ?? "—"}); тривог: ${c.alerts_before} → ${c.alerts_after}.</div>
-             <div class="note">${G.change_window}.${c.hours_before < 0.5 ? " Мала база (до 0.5 год/добу): кратність нестійка." : ""}</div>`) + `</div>`;
+      const c = o.change, sign = c.delta >= 0 ? "+" : "−";
+      h += `<div class="row"><h3>Зміна після 27.08 · ${o.centre}</h3>
+        <div>Годин на добу: ${c.hours_before.toFixed(2)} → ${c.hours_after.toFixed(2)} (${sign}${Math.abs(c.delta).toFixed(2)} год; ${fmtR(c.ratio)}); тривог: ${c.alerts_before.toFixed(2)} → ${c.alerts_after.toFixed(2)}.</div>
+        <div class="note">Вікно: ${c.window} — те саме порівняння, що в README.</div></div>`;
+    }
+    if (o.oblast_any) {
+      const c = o.oblast_any;
+      h += `<div class="row"><h3>Уся область, будь-яка тривога</h3>` +
+        (c.saturated ? `<div class="note">Насичено: ще до 27.08 тривога десь в області тривала ${Math.round(c.share_before * 100)}% часу, тож зростання тут не видно.</div>`
+          : `<div>Годин на добу: ${c.hours_before} → ${c.hours_after} (${fmtR(c.hours_ratio)}); тривог: ${c.alerts_before} → ${c.alerts_after}.</div>`) +
+        `<div class="note">Вікно: ${G.oblast_any_window}.${!c.saturated && c.hours_before < 0.5 ? " Мала база: кратність нестійка." : ""}</div></div>`;
     }
     if (o.october) {
       const q = o.october;
@@ -207,7 +231,8 @@
         ${q.growth ? '<span class="bad">Значуще зростання в жовтні.</span>' : '<span class="note">Значущого зростання немає.</span>'}</div></div>`;
     }
     if (o.issues) h += `<div class="row"><h3>Застереження до даних</h3><div class="note">${o.issues}</div></div>`;
-    document.getElementById("panel").innerHTML = h;
+    const panel = document.getElementById("panel");
+    panel.innerHTML = h; panel.scrollTop = 0; wireSpark();
   }
 
   document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; paint(); }));

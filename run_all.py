@@ -51,9 +51,9 @@ def main():
     step("Poisson vs clustering", run_process)
     step("neighbour oblasts on 27.08", run_neighbours)
     step("facts per city", stats.main)
+    step("all Ukraine: target, shared model, map", run_national)   # the main forecast model
     fc = step("forecast for the next day", forecast.forecast_next_day)
     step("figures", run_figures)
-    step("all Ukraine: target, shared model, map", run_national)
     def blocks():
         data = forecast.data_markdown()
         readme.update_blocks({"FORECAST": forecast.markdown(fc), "DATA": data}, ROOT / "README.md")

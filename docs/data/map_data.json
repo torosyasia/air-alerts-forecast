@@ -6,22 +6,29 @@
   "series_from": "2026-09-12",
   "series_to": "2026-10-11",
   "model": "qr_shared",
-  "change_window": "60 днів до 27.08 проти 27.08–06.09 (без 29.08–02.09)",
+  "oblast_any_window": "уся область, будь-яка тривога; офіційний канал: 60 днів до 27.08 проти 27.08–06.09 (без 29.08–02.09)",
   "october_window": "01.10 – останній день проти 07.09–30.09"
  },
  "oblasts": {
   "Херсонська область": {
    "oblast": "Херсонська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 6.78,
     "alerts_after": 8.0,
     "hours_before": 7.43,
     "hours_after": 8.24,
-    "alerts_ratio": 1.18,
     "hours_ratio": 1.11,
     "share_before": 0.31,
-    "saturated": false,
-    "p_alerts_more": 0.062
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 5.27,
+    "hours_after": 3.59,
+    "delta": -1.68,
+    "ratio": 0.68,
+    "alerts_before": 5.75,
+    "alerts_after": 4.29,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "kherson",
@@ -34,7 +41,7 @@
     "yesterday": 1.8
    },
    "accuracy": {
-    "model_mae": 1.41,
+    "model_mae": 1.42,
     "base_mae": 1.12,
     "base_name": "середнє за 7 днів",
     "model_is": 5.89,
@@ -88,16 +95,23 @@
   },
   "Волинська область": {
    "oblast": "Волинська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.12,
     "alerts_after": 1.0,
     "hours_before": 0.04,
     "hours_after": 0.23,
-    "alerts_ratio": 8.57,
     "hours_ratio": 5.16,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 0.0
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.04,
+    "hours_after": 1.0,
+    "delta": 0.96,
+    "ratio": 24.76,
+    "alerts_before": 0.1,
+    "alerts_after": 1.59,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "lutsk",
@@ -110,10 +124,10 @@
     "yesterday": 0.6
    },
    "accuracy": {
-    "model_mae": 0.83,
+    "model_mae": 0.84,
     "base_mae": 0.8,
     "base_name": "квантилі за 28 днів",
-    "model_is": 3.99,
+    "model_is": 4.0,
     "base_is": 4.49,
     "coverage": 0.64,
     "days": 14,
@@ -164,16 +178,23 @@
   },
   "Рівненська область": {
    "oblast": "Рівненська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.33,
     "alerts_after": 1.5,
     "hours_before": 0.25,
     "hours_after": 0.64,
-    "alerts_ratio": 4.5,
     "hours_ratio": 2.5,
     "share_before": 0.01,
-    "saturated": false,
-    "p_alerts_more": 0.0
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.24,
+    "hours_after": 2.32,
+    "delta": 2.08,
+    "ratio": 9.69,
+    "alerts_before": 0.3,
+    "alerts_after": 3.02,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "rivne",
@@ -186,10 +207,10 @@
     "yesterday": 2.3
    },
    "accuracy": {
-    "model_mae": 1.62,
+    "model_mae": 1.63,
     "base_mae": 1.76,
     "base_name": "медіана за 7 днів",
-    "model_is": 8.16,
+    "model_is": 8.15,
     "base_is": 9.99,
     "coverage": 0.71,
     "days": 14,
@@ -240,32 +261,39 @@
   },
   "Житомирська область": {
    "oblast": "Житомирська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 1.6,
     "alerts_after": 3.33,
     "hours_before": 1.36,
     "hours_after": 2.28,
-    "alerts_ratio": 2.08,
     "hours_ratio": 1.68,
     "share_before": 0.06,
-    "saturated": false,
-    "p_alerts_more": 0.025
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 1.08,
+    "hours_after": 4.61,
+    "delta": 3.54,
+    "ratio": 4.28,
+    "alerts_before": 1.32,
+    "alerts_after": 4.37,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "zhytomyr",
    "centre": "Житомир",
    "forecast": {
-    "q10": 1.2,
+    "q10": 1.1,
     "q50": 4.0,
     "q90": 9.0,
     "alert_at_00": false,
     "yesterday": 3.4
    },
    "accuracy": {
-    "model_mae": 3.26,
+    "model_mae": 3.25,
     "base_mae": 3.84,
     "base_name": "квантилі за 28 днів",
-    "model_is": 16.74,
+    "model_is": 16.72,
     "base_is": 15.18,
     "coverage": 0.64,
     "days": 14,
@@ -316,109 +344,124 @@
   },
   "Київська область": {
    "oblast": "Київська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 3.5,
     "alerts_after": 6.17,
     "hours_before": 3.86,
     "hours_after": 13.33,
-    "alerts_ratio": 1.76,
     "hours_ratio": 3.46,
     "share_before": 0.16,
-    "saturated": false,
-    "p_alerts_more": 0.008
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 1.09,
+    "hours_after": 8.12,
+    "delta": 7.03,
+    "ratio": 7.42,
+    "alerts_before": 1.53,
+    "alerts_after": 5.95,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
-   "city": "kyiv",
-   "centre": "Київ",
+   "city": "bila_tserkva",
+   "centre": "Біла Церква",
    "forecast": {
-    "q10": 2.3,
-    "q50": 6.2,
-    "q90": 10.9,
+    "q10": 2.4,
+    "q50": 7.1,
+    "q90": 12.5,
     "alert_at_00": false,
-    "yesterday": 5.4
+    "yesterday": 9.5
    },
    "accuracy": {
-    "model_mae": 4.22,
-    "base_mae": 4.29,
+    "model_mae": 5.01,
+    "base_mae": 5.2,
     "base_name": "«як учора»",
-    "model_is": 18.15,
-    "base_is": 18.46,
-    "coverage": 0.71,
+    "model_is": 21.04,
+    "base_is": 18.58,
+    "coverage": 0.64,
     "days": 14,
     "beats_mae": true,
-    "beats_is": true
+    "beats_is": false
    },
-   "h30": 7.67,
+   "h30": 8.35,
    "series30": [
-    3.12,
-    0.54,
-    0.46,
-    3.5,
-    2.31,
-    6.67,
-    1.64,
-    2.2,
-    13.12,
-    4.66,
-    10.52,
-    9.57,
-    11.09,
-    8.94,
-    11.97,
-    18.08,
-    14.2,
-    9.56,
-    20.78,
-    7.82,
-    6.59,
-    3.85,
-    3.13,
-    0.74,
-    2.21,
-    10.58,
-    11.57,
-    11.98,
-    13.2,
-    5.39
+    6.62,
+    5.87,
+    2.54,
+    7.27,
+    4.69,
+    8.3,
+    4.07,
+    5.77,
+    11.0,
+    10.1,
+    8.39,
+    9.04,
+    15.03,
+    7.4,
+    7.72,
+    12.82,
+    13.86,
+    5.44,
+    20.72,
+    4.57,
+    3.35,
+    2.24,
+    2.69,
+    3.24,
+    3.74,
+    14.23,
+    14.73,
+    9.86,
+    15.79,
+    9.46
    ],
    "october": {
-    "hours_sep": 8.37,
-    "hours_oct": 7.0,
-    "alerts_sep": 6.33,
-    "alerts_oct": 8.0,
+    "hours_sep": 8.88,
+    "hours_oct": 7.63,
+    "alerts_sep": 6.04,
+    "alerts_oct": 6.36,
     "growth": false
    },
    "issues": "",
-   "note": "Обласний центр — м. Київ (окрема одиниця на карті): прогноз і 30 днів — за Києвом."
+   "representative": true,
+   "note": "Обласний центр — м. Київ (окрема одиниця на карті). Для області показано місто-представника — Біла Церква (Білоцерківський район), за тим самим правилом покриття."
   },
   "Чернігівська область": {
    "oblast": "Чернігівська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 5.52,
     "alerts_after": 5.67,
     "hours_before": 16.78,
     "hours_after": 15.92,
-    "alerts_ratio": 1.03,
     "hours_ratio": 0.95,
     "share_before": 0.7,
-    "saturated": true,
-    "p_alerts_more": 0.355
+    "saturated": true
+   },
+   "change": {
+    "hours_before": 7.83,
+    "hours_after": 17.45,
+    "delta": 9.62,
+    "ratio": 2.23,
+    "alerts_before": 5.62,
+    "alerts_after": 6.15,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "chernihiv",
    "centre": "Чернігів",
    "forecast": {
-    "q10": 10.2,
-    "q50": 19.9,
+    "q10": 9.8,
+    "q50": 19.8,
     "q90": 24.0,
     "alert_at_00": true,
     "yesterday": 22.6
    },
    "accuracy": {
-    "model_mae": 3.25,
+    "model_mae": 3.28,
     "base_mae": 2.07,
     "base_name": "«як учора»",
-    "model_is": 15.03,
+    "model_is": 15.41,
     "base_is": 10.21,
     "coverage": 1.0,
     "days": 14,
@@ -469,32 +512,39 @@
   },
   "Сумська область": {
    "oblast": "Сумська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 4.63,
     "alerts_after": 7.33,
     "hours_before": 21.44,
     "hours_after": 19.31,
-    "alerts_ratio": 1.58,
     "hours_ratio": 0.9,
     "share_before": 0.89,
-    "saturated": true,
-    "p_alerts_more": 0.008
+    "saturated": true
+   },
+   "change": {
+    "hours_before": 19.92,
+    "hours_after": 17.31,
+    "delta": -2.61,
+    "ratio": 0.87,
+    "alerts_before": 5.27,
+    "alerts_after": 8.2,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "sumy",
    "centre": "Суми",
    "forecast": {
-    "q10": 5.8,
+    "q10": 5.4,
     "q50": 14.2,
-    "q90": 19.4,
+    "q90": 19.5,
     "alert_at_00": false,
     "yesterday": 13.5
    },
    "accuracy": {
-    "model_mae": 3.07,
+    "model_mae": 3.09,
     "base_mae": 2.23,
     "base_name": "«як учора»",
-    "model_is": 15.85,
+    "model_is": 16.25,
     "base_is": 10.32,
     "coverage": 0.93,
     "days": 14,
@@ -545,34 +595,41 @@
   },
   "Харківська область": {
    "oblast": "Харківська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 4.82,
     "alerts_after": 5.67,
     "hours_before": 22.32,
     "hours_after": 22.27,
-    "alerts_ratio": 1.18,
     "hours_ratio": 1.0,
     "share_before": 0.93,
-    "saturated": true,
-    "p_alerts_more": 0.156
+    "saturated": true
+   },
+   "change": {
+    "hours_before": 18.51,
+    "hours_after": 16.59,
+    "delta": -1.92,
+    "ratio": 0.9,
+    "alerts_before": 8.08,
+    "alerts_after": 10.05,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "kharkiv",
    "centre": "Харків",
    "forecast": {
-    "q10": 7.1,
+    "q10": 6.8,
     "q50": 15.3,
-    "q90": 21.5,
+    "q90": 21.6,
     "alert_at_00": true,
     "yesterday": 14.7
    },
    "accuracy": {
-    "model_mae": 2.42,
+    "model_mae": 2.44,
     "base_mae": 2.2,
     "base_name": "квантилі за 28 днів",
-    "model_is": 14.4,
+    "model_is": 14.69,
     "base_is": 12.48,
-    "coverage": 0.93,
+    "coverage": 1.0,
     "days": 14,
     "beats_mae": false,
     "beats_is": false
@@ -628,16 +685,14 @@
    "status": "occupied",
    "centre": "Луганськ",
    "note": "Обласний центр (Луганськ) під окупацією: не рахуємо.",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.0,
     "alerts_after": 0.0,
     "hours_before": 0.0,
     "hours_after": 0.0,
-    "alerts_ratio": null,
     "hours_ratio": null,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 1.0
+    "saturated": false
    }
   },
   "Донецька область": {
@@ -645,46 +700,51 @@
    "status": "occupied",
    "centre": "Донецьк",
    "note": "Обласний центр (Донецьк) під окупацією: не рахуємо.",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.3,
     "alerts_after": 1.0,
     "hours_before": 23.84,
     "hours_after": 23.33,
-    "alerts_ratio": 3.33,
     "hours_ratio": 0.98,
     "share_before": 0.99,
-    "saturated": true,
-    "p_alerts_more": 0.021
+    "saturated": true
    }
   },
   "Запорізька область": {
    "oblast": "Запорізька область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 4.23,
     "alerts_after": 6.0,
     "hours_before": 21.56,
     "hours_after": 22.01,
-    "alerts_ratio": 1.42,
     "hours_ratio": 1.02,
     "share_before": 0.9,
-    "saturated": true,
-    "p_alerts_more": 0.055
+    "saturated": true
+   },
+   "change": {
+    "hours_before": 21.56,
+    "hours_after": 21.8,
+    "delta": 0.24,
+    "ratio": 1.01,
+    "alerts_before": 4.23,
+    "alerts_after": 5.2,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "zaporizhzhia",
    "centre": "Запоріжжя",
    "forecast": {
-    "q10": 11.5,
-    "q50": 22.1,
+    "q10": 11.1,
+    "q50": 22.0,
     "q90": 24.0,
     "alert_at_00": true,
     "yesterday": 23.1
    },
    "accuracy": {
-    "model_mae": 1.53,
+    "model_mae": 1.55,
     "base_mae": 1.37,
     "base_name": "квантилі за 28 днів",
-    "model_is": 13.85,
+    "model_is": 14.29,
     "base_is": 5.74,
     "coverage": 1.0,
     "days": 14,
@@ -735,16 +795,23 @@
   },
   "Львівська область": {
    "oblast": "Львівська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.07,
     "alerts_after": 0.0,
     "hours_before": 0.04,
     "hours_after": 0.0,
-    "alerts_ratio": 0.0,
     "hours_ratio": 0.0,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 0.75
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.04,
+    "hours_after": 0.13,
+    "delta": 0.1,
+    "ratio": 3.74,
+    "alerts_before": 0.07,
+    "alerts_after": 0.15,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "lviv",
@@ -760,7 +827,7 @@
     "model_mae": 0.04,
     "base_mae": 0.04,
     "base_name": "медіана за 7 днів",
-    "model_is": 1.17,
+    "model_is": 1.16,
     "base_is": 0.41,
     "coverage": 1.0,
     "days": 14,
@@ -815,16 +882,23 @@
   },
   "Івано-Франківська область": {
    "oblast": "Івано-Франківська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.08,
     "alerts_after": 0.0,
     "hours_before": 0.06,
     "hours_after": 0.0,
-    "alerts_ratio": 0.0,
     "hours_ratio": 0.0,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 0.75
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.06,
+    "hours_after": 0.23,
+    "delta": 0.17,
+    "ratio": 4.14,
+    "alerts_before": 0.08,
+    "alerts_after": 0.37,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "ivano_frankivsk",
@@ -840,7 +914,7 @@
     "model_mae": 0.33,
     "base_mae": 0.33,
     "base_name": "«як учора»",
-    "model_is": 1.64,
+    "model_is": 1.65,
     "base_is": 1.68,
     "coverage": 0.93,
     "days": 14,
@@ -891,16 +965,23 @@
   },
   "Закарпатська область": {
    "oblast": "Закарпатська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.05,
     "alerts_after": 0.0,
     "hours_before": 0.03,
     "hours_after": 0.0,
-    "alerts_ratio": 0.0,
     "hours_ratio": 0.0,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 0.721
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.03,
+    "hours_after": 0.03,
+    "delta": -0.0,
+    "ratio": 0.93,
+    "alerts_before": 0.05,
+    "alerts_after": 0.07,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "uzhhorod",
@@ -967,16 +1048,23 @@
   },
   "Тернопільська область": {
    "oblast": "Тернопільська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.15,
     "alerts_after": 0.5,
     "hours_before": 0.1,
     "hours_after": 0.17,
-    "alerts_ratio": 3.33,
     "hours_ratio": 1.72,
     "share_before": 0.0,
-    "saturated": false,
-    "p_alerts_more": 0.014
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.1,
+    "hours_after": 0.88,
+    "delta": 0.78,
+    "ratio": 9.06,
+    "alerts_before": 0.15,
+    "alerts_after": 1.17,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "ternopil",
@@ -989,10 +1077,10 @@
     "yesterday": 2.0
    },
    "accuracy": {
-    "model_mae": 0.78,
+    "model_mae": 0.77,
     "base_mae": 0.93,
     "base_name": "медіана за 7 днів",
-    "model_is": 3.37,
+    "model_is": 3.33,
     "base_is": 6.07,
     "coverage": 0.71,
     "days": 14,
@@ -1043,16 +1131,23 @@
   },
   "Чернівецька область": {
    "oblast": "Чернівецька область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.15,
     "alerts_after": 0.33,
     "hours_before": 0.15,
     "hours_after": 0.2,
-    "alerts_ratio": 2.22,
     "hours_ratio": 1.34,
     "share_before": 0.01,
-    "saturated": false,
-    "p_alerts_more": 0.086
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.13,
+    "hours_after": 0.3,
+    "delta": 0.16,
+    "ratio": 2.23,
+    "alerts_before": 0.12,
+    "alerts_after": 0.34,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "chernivtsi",
@@ -1119,32 +1214,39 @@
   },
   "Одеська область": {
    "oblast": "Одеська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 9.05,
     "alerts_after": 10.17,
     "hours_before": 6.86,
     "hours_after": 8.01,
-    "alerts_ratio": 1.12,
     "hours_ratio": 1.17,
     "share_before": 0.29,
-    "saturated": false,
-    "p_alerts_more": 0.23
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 4.43,
+    "hours_after": 4.98,
+    "delta": 0.55,
+    "ratio": 1.12,
+    "alerts_before": 7.1,
+    "alerts_after": 8.05,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "odesa",
    "centre": "Одеса",
    "forecast": {
-    "q10": 1.1,
+    "q10": 1.0,
     "q50": 3.4,
     "q90": 7.4,
     "alert_at_00": false,
     "yesterday": 1.7
    },
    "accuracy": {
-    "model_mae": 1.58,
+    "model_mae": 1.59,
     "base_mae": 1.77,
     "base_name": "«як тиждень тому»",
-    "model_is": 7.54,
+    "model_is": 7.56,
     "base_is": 7.91,
     "coverage": 0.93,
     "days": 14,
@@ -1195,24 +1297,31 @@
   },
   "Миколаївська область": {
    "oblast": "Миколаївська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 9.32,
     "alerts_after": 9.67,
     "hours_before": 7.75,
     "hours_after": 10.92,
-    "alerts_ratio": 1.04,
     "hours_ratio": 1.41,
     "share_before": 0.32,
-    "saturated": false,
-    "p_alerts_more": 0.299
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 5.95,
+    "hours_after": 9.53,
+    "delta": 3.57,
+    "ratio": 1.6,
+    "alerts_before": 8.17,
+    "alerts_after": 11.24,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "mykolaiv",
    "centre": "Миколаїв",
    "forecast": {
-    "q10": 3.0,
+    "q10": 2.9,
     "q50": 8.6,
-    "q90": 14.9,
+    "q90": 15.0,
     "alert_at_00": false,
     "yesterday": 10.0
    },
@@ -1220,7 +1329,7 @@
     "model_mae": 2.79,
     "base_mae": 2.61,
     "base_name": "квантилі за 28 днів",
-    "model_is": 12.22,
+    "model_is": 12.34,
     "base_is": 11.03,
     "coverage": 0.93,
     "days": 14,
@@ -1277,16 +1386,23 @@
   },
   "Вінницька область": {
    "oblast": "Вінницька область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 1.03,
     "alerts_after": 4.0,
     "hours_before": 0.85,
     "hours_after": 3.03,
-    "alerts_ratio": 3.87,
     "hours_ratio": 3.56,
     "share_before": 0.04,
-    "saturated": false,
-    "p_alerts_more": 0.003
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.68,
+    "hours_after": 2.86,
+    "delta": 2.19,
+    "ratio": 4.23,
+    "alerts_before": 0.93,
+    "alerts_after": 3.56,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "vinnytsia",
@@ -1299,10 +1415,10 @@
     "yesterday": 5.6
    },
    "accuracy": {
-    "model_mae": 2.79,
+    "model_mae": 2.8,
     "base_mae": 2.54,
     "base_name": "«як учора»",
-    "model_is": 13.16,
+    "model_is": 13.18,
     "base_is": 11.13,
     "coverage": 0.57,
     "days": 14,
@@ -1353,16 +1469,23 @@
   },
   "Хмельницька область": {
    "oblast": "Хмельницька область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.28,
     "alerts_after": 1.67,
     "hours_before": 0.23,
     "hours_after": 1.01,
-    "alerts_ratio": 5.88,
     "hours_ratio": 4.43,
     "share_before": 0.01,
-    "saturated": false,
-    "p_alerts_more": 0.001
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 0.2,
+    "hours_after": 2.12,
+    "delta": 1.92,
+    "ratio": 10.69,
+    "alerts_before": 0.23,
+    "alerts_after": 2.44,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "khmelnytskyi",
@@ -1375,10 +1498,10 @@
     "yesterday": 5.1
    },
    "accuracy": {
-    "model_mae": 1.87,
+    "model_mae": 1.88,
     "base_mae": 1.98,
     "base_name": "«як учора»",
-    "model_is": 7.87,
+    "model_is": 7.86,
     "base_is": 8.06,
     "coverage": 0.64,
     "days": 14,
@@ -1429,24 +1552,31 @@
   },
   "Черкаська область": {
    "oblast": "Черкаська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 3.3,
     "alerts_after": 6.0,
     "hours_before": 2.76,
     "hours_after": 9.48,
-    "alerts_ratio": 1.82,
     "hours_ratio": 3.43,
     "share_before": 0.12,
-    "saturated": false,
-    "p_alerts_more": 0.004
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 2.43,
+    "hours_after": 8.61,
+    "delta": 6.18,
+    "ratio": 3.54,
+    "alerts_before": 3.02,
+    "alerts_after": 5.71,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "cherkasy",
    "centre": "Черкаси",
    "forecast": {
-    "q10": 2.2,
+    "q10": 2.1,
     "q50": 6.0,
-    "q90": 10.7,
+    "q90": 10.8,
     "alert_at_00": false,
     "yesterday": 4.1
    },
@@ -1454,7 +1584,7 @@
     "model_mae": 3.73,
     "base_mae": 4.15,
     "base_name": "квантилі за 28 днів",
-    "model_is": 17.15,
+    "model_is": 16.98,
     "base_is": 20.6,
     "coverage": 0.71,
     "days": 14,
@@ -1505,32 +1635,39 @@
   },
   "Полтавська область": {
    "oblast": "Полтавська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 6.67,
     "alerts_after": 7.0,
     "hours_before": 9.44,
     "hours_after": 14.39,
-    "alerts_ratio": 1.05,
     "hours_ratio": 1.52,
     "share_before": 0.39,
-    "saturated": false,
-    "p_alerts_more": 0.355
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 8.12,
+    "hours_after": 11.03,
+    "delta": 2.91,
+    "ratio": 1.36,
+    "alerts_before": 6.03,
+    "alerts_after": 7.98,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "poltava",
    "centre": "Полтава",
    "forecast": {
-    "q10": 3.1,
-    "q50": 8.1,
-    "q90": 13.2,
+    "q10": 2.9,
+    "q50": 8.0,
+    "q90": 13.3,
     "alert_at_00": false,
     "yesterday": 5.5
    },
    "accuracy": {
-    "model_mae": 2.77,
+    "model_mae": 2.75,
     "base_mae": 3.2,
     "base_name": "квантилі за 28 днів",
-    "model_is": 14.16,
+    "model_is": 14.3,
     "base_is": 16.41,
     "coverage": 0.93,
     "days": 14,
@@ -1581,16 +1718,23 @@
   },
   "Дніпропетровська область": {
    "oblast": "Дніпропетровська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 0.02,
     "alerts_after": 0.0,
     "hours_before": 23.99,
     "hours_after": 24.0,
-    "alerts_ratio": 0.0,
     "hours_ratio": 1.0,
     "share_before": 1.0,
-    "saturated": true,
-    "p_alerts_more": 0.644
+    "saturated": true
+   },
+   "change": {
+    "hours_before": 5.26,
+    "hours_after": 6.72,
+    "delta": 1.46,
+    "ratio": 1.28,
+    "alerts_before": 6.78,
+    "alerts_after": 8.0,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "dnipro",
@@ -1603,10 +1747,10 @@
     "yesterday": 8.4
    },
    "accuracy": {
-    "model_mae": 2.3,
+    "model_mae": 2.29,
     "base_mae": 2.92,
     "base_name": "медіана за 7 днів",
-    "model_is": 14.64,
+    "model_is": 14.65,
     "base_is": 16.53,
     "coverage": 0.79,
     "days": 14,
@@ -1661,32 +1805,39 @@
   },
   "Кіровоградська область": {
    "oblast": "Кіровоградська область",
-   "change": {
+   "oblast_any": {
     "alerts_before": 5.55,
     "alerts_after": 7.67,
     "hours_before": 4.52,
     "hours_after": 8.22,
-    "alerts_ratio": 1.38,
     "hours_ratio": 1.82,
     "share_before": 0.19,
-    "saturated": false,
-    "p_alerts_more": 0.005
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 3.48,
+    "hours_after": 7.89,
+    "delta": 4.41,
+    "ratio": 2.27,
+    "alerts_before": 4.68,
+    "alerts_after": 6.63,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "kropyvnytskyi",
    "centre": "Кропивницький",
    "forecast": {
-    "q10": 2.2,
-    "q50": 6.6,
+    "q10": 2.1,
+    "q50": 6.5,
     "q90": 11.6,
     "alert_at_00": false,
     "yesterday": 9.4
    },
    "accuracy": {
-    "model_mae": 3.27,
+    "model_mae": 3.26,
     "base_mae": 3.34,
     "base_name": "квантилі за 28 днів",
-    "model_is": 16.95,
+    "model_is": 16.89,
     "base_is": 16.39,
     "coverage": 0.64,
     "days": 14,
@@ -1737,24 +1888,31 @@
   },
   "м. Київ": {
    "oblast": "м. Київ",
-   "change": {
+   "oblast_any": {
     "alerts_before": 2.07,
     "alerts_after": 7.33,
     "hours_before": 1.69,
     "hours_after": 8.82,
-    "alerts_ratio": 3.55,
     "hours_ratio": 5.23,
     "share_before": 0.07,
-    "saturated": false,
-    "p_alerts_more": 0.001
+    "saturated": false
+   },
+   "change": {
+    "hours_before": 1.7,
+    "hours_after": 8.09,
+    "delta": 6.39,
+    "ratio": 4.77,
+    "alerts_before": 2.08,
+    "alerts_after": 7.28,
+    "window": "28.06–26.08 проти 27.08–11.10"
    },
    "status": "ok",
    "city": "kyiv",
    "centre": "Київ",
    "forecast": {
-    "q10": 2.3,
+    "q10": 2.2,
     "q50": 6.2,
-    "q90": 10.9,
+    "q90": 11.0,
     "alert_at_00": false,
     "yesterday": 5.4
    },

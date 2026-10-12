@@ -46,43 +46,15 @@ def parse_method(name):
 
 
 def forecast_next_day():
-    records, daily = load_processed()
-    X = pd.read_csv(PROCESSED / "features.csv")
-    X["date"] = pd.to_datetime(X.date).dt.date
-    D = (pd.Timestamp(daily.date.max()) + pd.Timedelta(days=1)).date()
-    t0 = pd.Timestamp(D).tz_localize(TZ)
-    snapshot = records.finished_at.max()
-    assert snapshot >= t0.tz_convert("UTC"), "data must reach the forecast origin"
-    metrics = pd.read_csv(RESULTS / "metrics_validation_test.csv")
-    main_model = select_main_model(metrics)
-    window, fs, cqr = parse_method(main_model)
-    cols = FEATURE_SETS[fs]
-    cap = float(iv.day_lengths(D, D).iloc[0])
-    past = pd.read_csv(PROCESSED / "model_forecasts.csv") if cqr else None
-    rows = []
-    for city in FORECAST_CITIES:
-        d = daily[daily.city == city]
-        missing = frozenset(d.date[d.hours.isna()])
-        f = pd.Series(features_at(records[records.city == city], D, missing))
-        train = X[(X.city == city) & (X.date < D)].dropna(subset=cols + ["y"])
-        if window:
-            train = train[train.date >= (pd.Timestamp(D) - pd.Timedelta(days=window)).date()]
-        q = list(np.clip(fit_predict(train, f, cols), 0, cap))
-        if cqr:  # widen by the conformal correction from this variant's last N_CONF forecasts
-            g = past[(past.city == city) & (past.method == main_model.removesuffix("+cqr"))].tail(N_CONF)
-            s = np.sort(np.maximum(g.q10 - g.y, g.y - g.q90))
-            Q = s[int(np.ceil((len(s) + 1) * 0.8)) - 1]
-            q[0], q[2] = max(q[0] - Q, 0.0), min(q[2] + Q, cap)
-        m = metrics[(metrics.period == "test") & (metrics.city == city) & (metrics.method == main_model)].iloc[0]
-        bt = metrics[(metrics.period == "test") & (metrics.city == city) & (metrics.kind == "baseline")]
-        rows.append({"city": city, "forecast_for": D, "issued_as_of_kyiv": f"{D} 00:00",
-                     "q10_h": round(q[0], 1), "q50_h": round(q[1], 1), "q90_h": round(q[2], 1),
-                     "alert_running_at_00": bool(f.active_t0), "hours_yesterday": round(f.h_lag1, 1),
-                     "mean_last_7d": round(f.h_mean7, 1), "model": main_model,
-                     "test_MAE_h": round(m.MAE, 2), "test_coverage80": round(m.coverage80, 2),
-                     "best_baseline_test_MAE_h": round(bt.MAE.min(), 2),
-                     "data_snapshot_utc": snapshot.strftime("%Y-%m-%d %H:%M")})
-    out = pd.DataFrame(rows)
+    """The published forecast for the three studied cities: rows of the all-Ukraine forecast
+    (one main model everywhere - the shared quantile regression chosen on validation,
+    airalerts/national_models.py; run it first). The per-city model of CP4 stays in REPORT."""
+    a = pd.read_csv(RESULTS / "forecast_next_day_all.csv")
+    out = a.set_index("city").loc[list(FORECAST_CITIES)].reset_index()
+    cols = ["city", "forecast_for", "issued_as_of_kyiv", "q10_h", "q50_h", "q90_h", "alert_running_at_00",
+            "hours_yesterday", "mean_last_7d", "model", "test_MAE_h", "test_coverage80",
+            "best_baseline_test_MAE_h", "data_snapshot_utc"]
+    out = out[cols].round({"test_MAE_h": 2, "test_coverage80": 2, "best_baseline_test_MAE_h": 2})
     out.to_csv(RESULTS / "forecast_next_day.csv", index=False)
     return out
 
@@ -91,7 +63,9 @@ def markdown(out):
     D = out.forecast_for.iloc[0]
     L = [f"**Прогноз на {pd.Timestamp(D):%d.%m.%Y}** (доба 00:00–24:00 за Києвом), зроблений станом на "
          f"{pd.Timestamp(D):%d.%m} 00:00 з даних до {out.data_snapshot_utc.iloc[0]} UTC. "
-         f"Модель — {human(out.model.iloc[0])}: серед варіантів у неї найменший interval score на валідації.", "",
+         f"Модель — спільна квантильна регресія для всіх обласних центрів (обрана на валідації; прогноз для "
+         f"кожного центру — [на карті](https://torosyasia.github.io/air-alerts-forecast/) і в "
+         f"[`results/forecast_next_day_all.csv`](results/forecast_next_day_all.csv)).", "",
          "| Місто | Медіана, год | 80% інтервал, год | Тривога о 00:00 | Учора, год | Середнє за 7 днів, год | MAE моделі на тесті | Покриття на тесті |",
          "|---|---|---|---|---|---|---|---|"]
     for _, r in out.iterrows():
@@ -102,7 +76,7 @@ def markdown(out):
     from .evaluate import periods
     _, daily = load_processed()
     test = periods(daily)["test"]
-    mf = pd.read_csv(PROCESSED / "model_forecasts.csv")
+    mf = pd.read_csv(PROCESSED / "national_forecasts.csv")
     mf = mf[(mf.city == "kyiv") & (mf.method == k.model) & (pd.to_datetime(mf.date).dt.date >= test[0])]
     above = int((mf.y > mf.q50).sum())
     worse = k.test_MAE_h >= k.best_baseline_test_MAE_h

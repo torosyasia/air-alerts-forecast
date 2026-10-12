@@ -201,6 +201,8 @@ def forecast_next_day_all(main, ct):
     out["q10_h"], out["q50_h"], out["q90_h"] = q[:, 0].round(1), q[:, 1].round(1), q[:, 2].round(1)
     out["alert_running_at_00"] = xD.active_t0.astype(bool).to_numpy()
     out["hours_yesterday"] = xD.h_lag1.round(1).to_numpy()
+    out["mean_last_7d"] = xD.h_mean7.round(1).to_numpy()
+    out["issued_as_of_kyiv"] = f"{D} 00:00"
     out["model"] = main
     out = out.merge(ct[["city", "model_MAE_h", "model_coverage80", "best_baseline_MAE_h", "best_baseline_by_MAE"]]
                     .rename(columns={"model_MAE_h": "test_MAE_h", "model_coverage80": "test_coverage80",

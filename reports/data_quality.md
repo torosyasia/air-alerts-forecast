@@ -3,27 +3,27 @@
 ## Sources
 
 - official CSV: 299275 rows, 113845 exact duplicate rows dropped
-- alerts.in.ua archive: 18146 rows (316 not `air_raid`, dropped); snapshot (latest timestamp) 2026-10-10 09:50:59+00:00; 4 covering records still ongoing → truncated at snapshot
-- KMDA: 2594 rows, uid contiguous: True, last start (local) 2026-10-04T23:32:50, DST-ambiguous local times resolved: 1
-- last complete Kyiv-local day in the daily table: **2026-10-09**
+- alerts.in.ua archive: 19652 rows (340 not `air_raid`, dropped); snapshot (latest timestamp) 2026-10-12 10:46:19.029000+00:00; 4 covering records still ongoing → truncated at snapshot
+- KMDA: 2641 rows, uid contiguous: True, last start (local) 2026-10-12T05:46:31, DST-ambiguous local times resolved: 1
+- last complete Kyiv-local day in the daily table: **2026-10-11**
 
 ## Stitching (source per city and period)
 
 | city | source | from (UTC) | until (UTC) |
 |---|---|---|---|
-| kyiv | kmda | start | 2026-10-03 21:00:00+00:00 |
-| kyiv | alerts_in_ua | 2026-10-03 21:00:00+00:00 | 2026-10-10 09:50:59+00:00 |
+| kyiv | kmda | start | 2026-10-11 21:00:00+00:00 |
+| kyiv | alerts_in_ua | 2026-10-11 21:00:00+00:00 | 2026-10-12 10:46:19.029000+00:00 |
 | kharkiv | official | start | 2026-09-06 21:00:00+00:00 |
-| kharkiv | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-10 09:50:59+00:00 |
+| kharkiv | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-12 10:46:19.029000+00:00 |
 | dnipro | official | start | 2026-09-06 21:00:00+00:00 |
-| dnipro | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-10 09:50:59+00:00 |
+| dnipro | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-12 10:46:19.029000+00:00 |
 | lviv | official | start | 2026-09-06 21:00:00+00:00 |
-| lviv | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-10 09:50:59+00:00 |
+| lviv | alerts_in_ua | 2026-09-06 21:00:00+00:00 | 2026-10-12 10:46:19.029000+00:00 |
 
 ## Cross-source agreement on overlaps
 
 - **kyiv_kmda_vs_official**: days=1630, corr=0.996, mae_h=0.0167, days_absdiff_gt_0.1h=22, period=2022-03-16..2026-09-05
-- **kyiv_kmda_vs_archive**: days=27, corr=1.0, mae_h=0.0141, days_absdiff_gt_0.1h=0, period=2026-09-07..2026-10-03
+- **kyiv_kmda_vs_archive**: days=35, corr=1.0, mae_h=0.0148, days_absdiff_gt_0.1h=0, period=2026-09-07..2026-10-11
 - **kharkiv_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=15.1028, archive_h=15.1053
 - **dnipro_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=6.3169, archive_h=7.8132
 - **lviv_official_vs_archive_overlap**: window_utc=2026-09-06 12:00:00+00:00 .. 2026-09-07 05:09:00+00:00, official_h=0.0, archive_h=0.0
@@ -34,10 +34,10 @@
 
 | city | days | first | last | mean h/day | zero days | longest zero run | days with alert >24h | days with dropped imputed record | records |
 |---|---|---|---|---|---|---|---|---|---|
-| dnipro | 1669 | 2022-03-16 | 2026-10-09 | 4.67 | 22 | 3 (from 2026-05-09) | 0 | 9 | 7672 |
-| kharkiv | 1669 | 2022-03-16 | 2026-10-09 | 8.87 | 7 | 2 (from 2022-11-21) | 14 | 5 | 13898 |
-| kyiv | 1669 | 2022-03-16 | 2026-10-09 | 1.73 | 480 | 14 (from 2023-10-03) | 0 | 0 | 2628 |
-| lviv | 1669 | 2022-03-16 | 2026-10-09 | 0.54 | 1072 | 28 (from 2023-09-30) | 0 | 3 | 846 |
+| dnipro | 1671 | 2022-03-16 | 2026-10-11 | 4.67 | 22 | 3 (from 2026-05-09) | 0 | 9 | 7700 |
+| kharkiv | 1671 | 2022-03-16 | 2026-10-11 | 8.88 | 7 | 2 (from 2022-11-21) | 14 | 5 | 13977 |
+| kyiv | 1671 | 2022-03-16 | 2026-10-11 | 1.74 | 480 | 14 (from 2023-10-03) | 0 | 0 | 2643 |
+| lviv | 1671 | 2022-03-16 | 2026-10-11 | 0.54 | 1073 | 28 (from 2023-09-30) | 0 | 3 | 846 |
 
 ## Records with imputed end (start + 1 h) dropped
 

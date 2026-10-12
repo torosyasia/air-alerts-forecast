@@ -44,15 +44,15 @@ AI agents.
 **Next-day forecast** (updated by `run_all.py`):
 
 <!-- FORECAST_EN:START -->
-**Forecast for 10 Oct 2026** (00:00–24:00 Kyiv time), issued as of 00:00 from data up to 2026-10-10 09:50 UTC.
+**Forecast for 12 Oct 2026** (00:00–24:00 Kyiv time), issued as of 00:00 from data up to 2026-10-12 10:46 UTC.
 
 | City | Median, h | 80% interval, h | Alert at 00:00 | Yesterday, h | Test MAE, h | Test coverage |
 |---|---|---|---|---|---|---|
-| Kyiv | **4.4** | 0.0 – 11.9 | no | 11.9 | 4.82 | 79% |
-| Kharkiv | **13.1** | 7.9 – 17.6 | yes | 7.1 | 2.69 | 86% |
-| Dnipro | **5.4** | 2.3 – 8.0 | no | 9.2 | 2.28 | 79% |
+| Kyiv | **4.9** | 0.0 – 11.4 | no | 5.4 | 4.30 | 79% |
+| Kharkiv | **15.5** | 9.6 – 20.1 | yes | 14.7 | 2.38 | 86% |
+| Dnipro | **6.4** | 3.5 – 9.9 | yes | 8.4 | 2.36 | 79% |
 
-**How far to trust it.** For Kyiv the model is not better than the best simple baseline (4.8 vs 4.3 h mean error), so read the interval, not the point. This is a statistical forecast, not a threat warning.
+**How far to trust it.** For Kyiv the model is not better than the best simple baseline (4.3 vs 4.3 h mean error), so read the interval, not the point. This is a statistical forecast, not a threat warning.
 <!-- FORECAST_EN:END -->
 
 **How it was done: a human + AI agents.**

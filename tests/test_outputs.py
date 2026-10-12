@@ -29,7 +29,8 @@ def test_next_day_forecast(built):
 
 def test_readme_and_report_blocks_present():
     from airalerts.config import ROOT
-    for name, blocks in (("README.md", ("FORECAST", "DATA")), ("REPORT.md", ("DATA", "FACTS", "RESULTS"))):
+    for name, blocks in (("README.md", ("FORECAST", "DATA")), ("README.en.md", ("FORECAST_EN",)),
+                         ("REPORT.md", ("DATA", "FACTS", "RESULTS"))):
         text = (ROOT / name).read_text(encoding="utf-8")
         for b in blocks:
             assert text.count(f"<!-- {b}:START -->") == 1 and text.count(f"<!-- {b}:END -->") == 1, (name, b)

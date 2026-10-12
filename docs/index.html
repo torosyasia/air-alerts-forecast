@@ -85,6 +85,7 @@
   Прогноз — спільна квантильна регресія для всіх обласних центрів, перевірена на днях, яких модель не бачила.
   Контури областей: geoBoundaries / OpenStreetMap (ODbL).
   Код, метод і обмеження — <a href="https://github.com/torosyasia/air-alerts-forecast">github.com/torosyasia/air-alerts-forecast</a>.
+  <br>Автор: Торос-Манук Петриченко, KSE Agentic AI School 2026.
 </footer>
 <script>
 (async function () {
@@ -120,7 +121,7 @@
       legend: "медіана прогнозу, год на добу: 0 → 20+" },
     change: { val: o => o.change && o.status !== "occupied" ? o.change.delta : null,
       t: v => v / 8, label: v => (v >= 0 ? "+" : "−") + Math.abs(v).toFixed(1),
-      legend: "приріст годин тривоги на добу в обласному центрі після 27.08: 0 (або менше) → +8" },
+      legend: "приріст годин тривоги на добу в області після 27.08 (за обласним центром): 0 (або менше) → +8" },
     h30: { val: o => o.h30, t: v => v / 20, label: v => v.toFixed(0),
       legend: "середньо годин тривоги на добу за 30 днів: 0 → 20+" },
   };
@@ -166,7 +167,7 @@
     document.getElementById("legend").innerHTML =
       `<span>${M.legend}</span><span class="grad" style="background:${g}"></span>` +
       `<span><span class="sw" style="background:var(--grey)"></span>окуповано / немає даних</span>` +
-      (mode === "change" ? `<span>години рахуються для обласного центру; для Київської області — Біла Церква</span>` : "") +
+      (mode === "change" ? `<span>Київська область — за Білою Церквою (обласний центр — м. Київ)</span>` : "") +
       `<span>○ детально досліджені міста</span>`;
   }
 
@@ -214,7 +215,7 @@
     const fmtR = r => (r === null || r === undefined || !isFinite(r) || r <= 0) ? "—" : "×" + r.toFixed(1);
     if (o.change) {
       const c = o.change, sign = c.delta >= 0 ? "+" : "−";
-      h += `<div class="row"><h3>Зміна після 27.08 · ${o.centre}</h3>
+      h += `<div class="row"><h3>Зміна після 27.08 · ${name === "м. Київ" ? name : name + " (" + o.centre + ")"}</h3>
         <div>Годин на добу: ${c.hours_before.toFixed(2)} → ${c.hours_after.toFixed(2)} (${sign}${Math.abs(c.delta).toFixed(2)} год; ${fmtR(c.ratio)}); тривог: ${c.alerts_before.toFixed(2)} → ${c.alerts_after.toFixed(2)}.</div>
         <div class="note">Вікно: ${c.window} — те саме порівняння, що в README.</div></div>`;
     }

@@ -1,0 +1,217 @@
+<!doctype html>
+<html lang="uk">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Тривоги в Україні: статистика і прогноз</title>
+<meta name="description" content="Статистика повітряних тривог по обласних центрах України і статистичний прогноз годин тривоги на добу. Не карта поточних тривог.">
+<style>
+  :root {
+    --bg: #0f1216; --panel: #171b21; --ink: #e9eaec; --ink2: #a9adb4; --muted: #6f747c;
+    --edge: #3a3f47; --grey: #2a2e35; --sat: #4a4f57; --accent: #ff5a5f; --line: #262b33;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--ink);
+    font: 15px/1.45 system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  a { color: #ff8a8e; }
+  header { padding: 16px 16px 8px; max-width: 1200px; margin: 0 auto; }
+  h1 { font-size: 20px; margin: 0 0 6px; }
+  .warn { display: inline-block; background: #2a1a1c; border: 1px solid #5a2a2e; color: #ffd2d4;
+    padding: 6px 10px; border-radius: 8px; font-size: 13px; }
+  .meta { color: var(--ink2); font-size: 13px; margin-top: 8px; }
+  .wrap { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 16px;
+    max-width: 1200px; margin: 0 auto; padding: 8px 16px 16px; }
+  @media (max-width: 860px) { .wrap { grid-template-columns: 1fr; } }
+  .modes { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+  .modes button { background: var(--panel); color: var(--ink2); border: 1px solid var(--edge);
+    border-radius: 999px; padding: 6px 12px; font: inherit; font-size: 13px; cursor: pointer; }
+  .modes button[aria-pressed="true"] { color: var(--ink); border-color: var(--accent); background: #2a1a1c; }
+  svg#map { width: 100%; height: auto; display: block; }
+  .ob { stroke: var(--edge); stroke-width: 0.7; cursor: pointer; vector-effect: non-scaling-stroke; fill-rule: evenodd; }
+  .ob:hover, .ob:focus { stroke: #fff; stroke-width: 1.6; outline: none; }
+  .ob.sel { stroke: #fff; stroke-width: 2.2; }
+  .lbl { fill: #fff; font-size: 11px; font-weight: 700; text-anchor: middle; pointer-events: none;
+    paint-order: stroke; stroke: rgba(0,0,0,.55); stroke-width: 3px; }
+  .star { fill: none; stroke: #fff; stroke-width: 1.4; pointer-events: none; }
+  .legend { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; color: var(--ink2); font-size: 12px; margin-top: 8px; }
+  .grad { width: 160px; height: 10px; border-radius: 3px; }
+  .sw { display: inline-block; width: 12px; height: 12px; border-radius: 2px; vertical-align: -2px; margin-right: 4px; }
+  aside { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 14px; align-self: start; }
+  aside h2 { font-size: 17px; margin: 0 0 2px; }
+  aside .sub { color: var(--ink2); font-size: 13px; margin-bottom: 10px; }
+  .big { font-size: 28px; font-weight: 700; }
+  .row { margin: 10px 0; padding-top: 10px; border-top: 1px solid var(--line); }
+  .row h3 { font-size: 12px; text-transform: uppercase; letter-spacing: .04em; color: var(--muted); margin: 0 0 4px; }
+  .tag { display: inline-block; font-size: 12px; padding: 2px 8px; border-radius: 999px; border: 1px solid var(--edge); color: var(--ink2); }
+  .good { color: #8fd19e; } .bad { color: #ffb3b5; }
+  .note { color: var(--ink2); font-size: 13px; }
+  footer { max-width: 1200px; margin: 0 auto; padding: 8px 16px 28px; color: var(--muted); font-size: 12px; }
+</style>
+</head>
+<body>
+<header>
+  <h1>Повітряні тривоги в Україні: статистика і прогноз</h1>
+  <div class="warn">Це <b>не</b> карта поточних тривог. Тут статистика за минулі дні і статистичний прогноз годин тривоги на добу.
+    Про загрозу зараз — лише офіційні сигнали.</div>
+  <div class="meta" id="meta">Завантаження даних…</div>
+</header>
+<div class="wrap">
+  <main>
+    <div class="modes" role="group" aria-label="Шар карти">
+      <button data-mode="forecast" aria-pressed="true">Прогноз на добу</button>
+      <button data-mode="change" aria-pressed="false">Зміна після 27.08</button>
+      <button data-mode="h30" aria-pressed="false">Години за 30 днів</button>
+    </div>
+    <svg id="map" role="img" aria-label="Карта областей України"></svg>
+    <div class="legend" id="legend"></div>
+  </main>
+  <aside id="panel" aria-live="polite">
+    <h2>Оберіть область</h2>
+    <div class="note">Клацніть на область, щоб побачити прогноз з інтервалом, точність моделі, графік за 30 днів і зміну після 27.08.
+      <br><br>☆ — міста, які досліджено детально: Київ, Харків, Дніпро, Львів.</div>
+  </aside>
+</div>
+<footer>
+  Дані: KMDA (data.gov.ua), офіційний канал @air_alert_ua (датасет Vadimkin), архів alerts.in.ua (JustJimer).
+  Ціль — години доби, коли обласний центр покритий тривогою (область, район міста або саме місто).
+  Прогноз — спільна квантильна регресія для всіх обласних центрів, перевірена на днях, яких модель не бачила.
+  Контури областей: geoBoundaries / OpenStreetMap (ODbL).
+  Код, метод і обмеження — <a href="https://github.com/torosyasia/air-alerts-forecast">github.com/torosyasia/air-alerts-forecast</a>.
+</footer>
+<script>
+(async function () {
+  const [geo, data] = await Promise.all([
+    fetch("data/oblasts.geojson").then(r => r.json()),
+    fetch("data/map_data.json").then(r => r.json()),
+  ]);
+  const G = data.generated, O = data.oblasts;
+  const dmy = s => { const [y, m, d] = s.split("-"); return `${d}.${m}.${y}`; };
+  document.getElementById("meta").textContent =
+    `Дані до ${G.data_snapshot_utc} UTC · остання повна доба ${dmy(G.last_full_day)} · прогноз на ${dmy(G.forecast_for)} (00:00–24:00 за Києвом)`;
+
+  // --- projection: equirectangular scaled by cos(48.5°), fitted to the box -------------
+  const K = Math.cos(48.5 * Math.PI / 180);
+  let minX = 1e9, maxX = -1e9, minY = 1e9, maxY = -1e9;
+  const each = (geom, fn) => (geom.type === "Polygon" ? [geom.coordinates] : geom.coordinates).forEach(p => fn(p));
+  geo.features.forEach(f => each(f.geometry, p => p[0].forEach(([x, y]) => {
+    minX = Math.min(minX, x * K); maxX = Math.max(maxX, x * K); minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+  })));
+  const W = 1000, H = Math.round(W * (maxY - minY) / (maxX - minX));
+  const px = x => ((x * K - minX) / (maxX - minX)) * W, py = y => ((maxY - y) / (maxY - minY)) * H;
+  const svg = document.getElementById("map");
+  svg.setAttribute("viewBox", `0 0 ${W} ${H}`);
+  const NS = "http://www.w3.org/2000/svg";
+  const el = (n, a) => { const e = document.createElementNS(NS, n); for (const k in a) e.setAttribute(k, a[k]); return e; };
+
+  // --- colour: more = more saturated red ----------------------------------------------
+  const stops = [[43, 26, 28], [122, 35, 40], [200, 51, 59], [255, 90, 95]];
+  const red = t => { t = Math.max(0, Math.min(1, t)); const s = t * 3, i = Math.min(2, Math.floor(s)), u = s - i;
+    const c = stops[i].map((v, k) => Math.round(v + (stops[i + 1][k] - v) * u)); return `rgb(${c})`; };
+  const MODES = {
+    forecast: { val: o => o.forecast && o.forecast.q50, t: v => v / 20, label: v => v.toFixed(0),
+      legend: "медіана прогнозу, год на добу: 0 → 20+" },
+    change: { val: o => o.change && !o.change.saturated && o.status !== "occupied" ? o.change.hours_ratio : null,
+      t: v => Math.log2(Math.max(v, 1)) / 3, label: v => "×" + v.toFixed(1),
+      legend: "у скільки разів зросли години тривоги в області після 27.08: ×1 → ×8+" },
+    h30: { val: o => o.h30, t: v => v / 20, label: v => v.toFixed(0),
+      legend: "середньо годин тривоги на добу за 30 днів: 0 → 20+" },
+  };
+  let mode = "forecast", selected = null;
+
+  const centroid = f => { let best = null, area = -1;
+    each(f.geometry, p => { const r = p[0]; let a = 0, cx = 0, cy = 0;
+      for (let i = 0; i < r.length - 1; i++) { const x0 = px(r[i][0]), y0 = py(r[i][1]), x1 = px(r[i + 1][0]), y1 = py(r[i + 1][1]);
+        const c = x0 * y1 - x1 * y0; a += c; cx += (x0 + x1) * c; cy += (y0 + y1) * c; }
+      a /= 2; if (Math.abs(a) > area) { area = Math.abs(a); best = [cx / (6 * a), cy / (6 * a)]; } });
+    return best; };
+
+  const paths = {}, labels = {};
+  // draw Kyiv city last so it stays clickable on top of Kyiv oblast
+  const feats = geo.features.slice().sort((a, b) => (a.properties.name === "м. Київ") - (b.properties.name === "м. Київ"));
+  feats.forEach(f => {
+    const name = f.properties.name;
+    let d = ""; each(f.geometry, p => p.forEach(ring => { d += "M" + ring.map(([x, y]) => `${px(x).toFixed(1)},${py(y).toFixed(1)}`).join("L") + "Z"; }));
+    const path = el("path", { d, class: "ob", tabindex: 0, role: "button", "aria-label": name });
+    path.addEventListener("click", () => select(name));
+    path.addEventListener("keydown", e => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); select(name); } });
+    svg.appendChild(path); paths[name] = path;
+  });
+  feats.forEach(f => {
+    const name = f.properties.name, o = O[name] || {}, c = centroid(f);
+    const dy = name === "м. Київ" ? -14 : 4;
+    const t = el("text", { x: c[0], y: c[1] + dy, class: "lbl" }); svg.appendChild(t); labels[name] = t;
+    if (o.deep) svg.appendChild(el("circle", { cx: c[0], cy: c[1] + (name === "м. Київ" ? 0 : 16), r: 6, class: "star" }));
+  });
+
+  function paint() {
+    const M = MODES[mode];
+    for (const name in paths) {
+      const o = O[name] || {}, v = M.val(o);
+      let fill = "var(--grey)";
+      if (mode === "change" && o.change && o.change.saturated && o.status !== "occupied") fill = "var(--sat)";
+      else if (v !== null && v !== undefined) fill = red(M.t(v));
+      paths[name].setAttribute("fill", fill);
+      const showLbl = v !== null && v !== undefined && name !== "Київська область";
+      labels[name].textContent = showLbl ? M.label(v) : "";
+    }
+    document.querySelectorAll(".modes button").forEach(b => b.setAttribute("aria-pressed", b.dataset.mode === mode));
+    const g = `linear-gradient(90deg, ${red(0)}, ${red(.33)}, ${red(.66)}, ${red(1)})`;
+    document.getElementById("legend").innerHTML =
+      `<span>${M.legend}</span><span class="grad" style="background:${g}"></span>` +
+      `<span><span class="sw" style="background:var(--grey)"></span>окуповано / немає даних</span>` +
+      (mode === "change" ? `<span><span class="sw" style="background:var(--sat)"></span>насичено: тривога в області майже завжди</span>` : "") +
+      `<span>○ детально досліджені міста</span>`;
+  }
+
+  function spark(series) {
+    const w = 300, h = 70, n = series.length, bw = w / n;
+    let s = `<svg viewBox="0 0 ${w} ${h + 14}" width="100%" role="img" aria-label="Години тривоги за 30 днів">`;
+    series.forEach((v, i) => {
+      if (v === null) { s += `<rect x="${i * bw + 1}" y="${h - 2}" width="${bw - 2}" height="2" fill="#555"/>`; return; }
+      const bh = Math.max(1, v / 24 * h);
+      s += `<rect x="${(i * bw + 1).toFixed(1)}" y="${(h - bh).toFixed(1)}" width="${(bw - 2).toFixed(1)}" height="${bh.toFixed(1)}" fill="${red(v / 20)}"><title>${v} год</title></rect>`;
+    });
+    s += `<text x="0" y="${h + 12}" fill="#888" font-size="10">${dmy(G.series_from)}</text>`;
+    s += `<text x="${w}" y="${h + 12}" fill="#888" font-size="10" text-anchor="end">${dmy(G.series_to)}</text></svg>`;
+    return s;
+  }
+
+  function select(name) {
+    if (selected) paths[selected].classList.remove("sel");
+    selected = name; paths[name].classList.add("sel");
+    const o = O[name] || {}; let h = `<h2>${name}</h2>`;
+    h += `<div class="sub">${o.centre ? "Обласний центр: " + o.centre : ""}</div>`;
+    if (o.deep) h += `<div><span class="tag">☆ детально досліджено: ${o.deep.role}</span> <a href="${o.deep.link}">аналіз →</a></div>`;
+    if (o.note) h += `<p class="note">${o.note}</p>`;
+    if (o.forecast) {
+      const f = o.forecast, a = o.accuracy;
+      h += `<div class="row"><h3>Прогноз на ${dmy(G.forecast_for)}</h3><div class="big">${f.q50} год</div>
+        <div class="note">80% інтервал: ${f.q10}–${f.q90} год · учора ${f.yesterday} год · тривога о 00:00: ${f.alert_at_00 ? "так" : "ні"}</div></div>`;
+      const better = a.beats_mae ? `<span class="good">модель точніша</span>` : `<span class="bad">модель не точніша</span>`;
+      h += `<div class="row"><h3>Наскільки точна модель тут</h3>
+        <div>Середня помилка на тесті (${a.days} днів): модель <b>${a.model_mae} год</b>, найкращий простий прогноз (${a.base_name}) <b>${a.base_mae} год</b> — ${better}.</div>
+        <div class="note">Факт потрапив в 80% інтервал у ${Math.round(a.coverage * 100)}% днів.</div></div>`;
+    }
+    if (o.series30) h += `<div class="row"><h3>Години тривоги за 30 днів · в середньому ${o.h30} год/добу</h3>${spark(o.series30)}</div>`;
+    if (o.change) {
+      const c = o.change;
+      h += `<div class="row"><h3>Зміна після 27.08 (будь-яка тривога в області)</h3>` +
+        (c.saturated ? `<div class="note">Насичено: ще до 27.08 тривога в області тривала ${Math.round(c.share_before * 100)}% часу, тож зростання тут не видно.</div>`
+          : `<div>Годин на добу: ${c.hours_before} → ${c.hours_after} (×${c.hours_ratio ?? "—"}); тривог: ${c.alerts_before} → ${c.alerts_after}.</div>
+             <div class="note">${G.change_window}. Мала база (до 0.5 год/добу) дає нестійку кратність.</div>`) + `</div>`;
+    }
+    if (o.october) {
+      const q = o.october;
+      h += `<div class="row"><h3>Жовтень проти вересня</h3><div>Годин на добу ${q.hours_sep} → ${q.hours_oct}; тривог ${q.alerts_sep} → ${q.alerts_oct}.
+        ${q.growth ? '<span class="bad">Значуще зростання в жовтні.</span>' : '<span class="note">Значущого зростання немає.</span>'}</div></div>`;
+    }
+    if (o.issues) h += `<div class="row"><h3>Застереження до даних</h3><div class="note">${o.issues}</div></div>`;
+    document.getElementById("panel").innerHTML = h;
+  }
+
+  document.querySelectorAll(".modes button").forEach(b => b.addEventListener("click", () => { mode = b.dataset.mode; paint(); }));
+  paint();
+})().catch(e => { document.getElementById("meta").textContent = "Не вдалося завантажити дані карти: " + e; });
+</script>
+</body>
+</html>

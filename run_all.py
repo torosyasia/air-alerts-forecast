@@ -61,7 +61,25 @@ def main():
         readme.update_blocks({"DATA": data, "RESULTS": forecast.results_markdown(),
                               "FACTS": stats.markdown(stats.main())}, ROOT / "REPORT.md")
     step("README + REPORT auto blocks", blocks)
-    print("[run_all] done: results/, reports/, figures/, README.md and REPORT.md blocks")
+    summary()
+
+
+def summary():
+    """Short console summary: data dates, the forecast for the four main cities, where files are."""
+    import pandas as pd
+    from airalerts.config import RESULTS, pinned
+    f = pd.read_csv(RESULTS / "forecast_next_day_all.csv").set_index("city")
+    d = pd.read_csv(RESULTS / "daily_target.csv")
+    print("\n[run_all] done.")
+    print("  data:     " + ", ".join(f"{k} {v['version']}" for k, v in pinned().items())
+          + f"; last full day {d.date.max()}; data up to {f.data_snapshot_utc.iloc[0]} UTC")
+    print(f"  forecast for {f.forecast_for.iloc[0]} (median, 80% interval, hours under alert):")
+    for c in ("kyiv", "kharkiv", "dnipro", "lviv"):
+        r = f.loc[c]
+        print(f"    {r['name']:<8} {r.q50_h:5.1f}  [{r.q10_h:.1f} - {r.q90_h:.1f}]   test MAE {r.test_MAE_h:.2f} h "
+              f"vs best simple {r.best_baseline_test_MAE_h:.2f} h")
+    print("  files:    results/ (see results/README.md), reports/, figures/, docs/ (map), "
+          "README.md, README.en.md, REPORT.md")
 
 
 if __name__ == "__main__":

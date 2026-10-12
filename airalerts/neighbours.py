@@ -57,6 +57,7 @@ def outage_days():
     return out
 
 
+@np.errstate(divide="ignore", invalid="ignore")   # 0/0 for oblasts with no alerts -> NaN, on purpose
 def analyse(raw=None, groups=None):
     """groups: {oblast: group label}; default GROUPS (fig9). national.py passes every oblast."""
     raw = load() if raw is None else raw

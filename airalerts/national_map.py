@@ -169,7 +169,7 @@ def preview(data, geo):
         if v is not None:
             ring = np.array(polys[0][0])
             cx, cy = ring[:, 0].mean() * k, ring[:, 1].mean()
-            ax.text(cx, cy, f"{v:.0f}", color="white", ha="center", va="center", fontsize=8, fontweight="bold")
+            ax.text(cx, cy, f"{int(np.floor(v + 0.5))}", color="white", ha="center", va="center", fontsize=8, fontweight="bold")
     ax.autoscale_view()
     ax.set_aspect("equal")
     ax.axis("off")
@@ -222,9 +222,14 @@ def main():
     from .national import build_targets, change_after_break, load_national, recent_layers, thirty_day_series
     from .national_models import build_features_all, city_table, forecast_next_day_all, run
     from .neighbours import analyse, load
+    log = lambda msg: print(f"[all Ukraine] {msg}", flush=True)
+    log("target for 23 cities ...")
     _, _, checks = build_targets()
+    log("features known at 00:00 for 23 cities (~2 min) ...")
     build_features_all()
+    log("rolling forecasts: shared, per-city, fresh-window models (~5 min) ...")
     m, main_model, per = run()
+    log("next-day forecast, map data, preview, report ...")
     ct = city_table(m, main_model)
     ct.round(4).to_csv(RESULTS / "national_city_test.csv", index=False)
     fc = forecast_next_day_all(main_model, ct)

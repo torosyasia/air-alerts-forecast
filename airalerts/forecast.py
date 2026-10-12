@@ -102,19 +102,41 @@ def markdown(out):
     mf = pd.read_csv(PROCESSED / "model_forecasts.csv")
     mf = mf[(mf.city == "kyiv") & (mf.method == k.model) & (pd.to_datetime(mf.date).dt.date >= test[0])]
     above = int((mf.y > mf.q50).sum())
+    worse = k.test_MAE_h >= k.best_baseline_test_MAE_h
+    low = above >= 0.65 * len(mf)
     L += ["", f"**Наскільки цьому вірити.** На тесті 80% інтервал накрив факт у {out.test_coverage80.min():.0%}–"
-          f"{out.test_coverage80.max():.0%} днів, а середня помилка медіани — {out.test_MAE_h.min():.1f}–"
-          f"{out.test_MAE_h.max():.1f} год. Для Києва це {k.test_MAE_h:.1f} год, а в найкращого простого прогнозу "
-          f"(baseline) — {k.best_baseline_test_MAE_h:.1f} год, тобто модель там "
-          + ("не краща за простий прогноз" if k.test_MAE_h >= k.best_baseline_test_MAE_h else "трохи краща")
-          + (f". До того ж київська медіана занижена: на тесті факт був вищим за неї в {above} з {len(mf)} днів, "
-             "бо модель навчена здебільшого на старому, спокійнішому режимі. "
-             if above >= 0.65 * len(mf) else
-             f". На тесті факт був вищим за київську медіану в {above} з {len(mf)} днів. ")
-          + "Київський прогноз — орієнтир рівня, "
-          "а не точна цифра: інтервал "
-          "широкий, бо рівень у Києві йде хвилями на тиждень-два, а тривоги в межах доби — пачками. Це статистика, а не попередження про загрозу. Файл: "
-          "[`results/forecast_next_day.csv`](results/forecast_next_day.csv)."]
+          f"{out.test_coverage80.max():.0%} днів, а медіана помилялась у середньому на {out.test_MAE_h.min():.1f}–"
+          f"{out.test_MAE_h.max():.1f} год. "
+          + (f"Для Києва модель не краща за найкращий простий прогноз ({k.test_MAE_h:.1f} проти "
+             f"{k.best_baseline_test_MAE_h:.1f} год)" if worse else
+             f"Для Києва модель трохи краща за найкращий простий прогноз ({k.test_MAE_h:.1f} проти "
+             f"{k.best_baseline_test_MAE_h:.1f} год)")
+          + (f", а її медіана занижена: факт був вищим у {above} з {len(mf)} днів. " if low else ". ")
+          + "Тож для Києва дивіться на інтервал, а не на точну цифру; це статистика, а не попередження про "
+          "загрозу. Файл: [`results/forecast_next_day.csv`](results/forecast_next_day.csv)."]
+    return "\n".join(L)
+
+
+CITY_EN = {"kyiv": "Kyiv", "kharkiv": "Kharkiv", "dnipro": "Dnipro"}
+
+
+def markdown_en(out):
+    """Short English forecast block for README.en.md (same numbers as markdown())."""
+    D = out.forecast_for.iloc[0]
+    k = out.set_index("city").loc["kyiv"]
+    L = [f"**Forecast for {pd.Timestamp(D):%d %b %Y}** (00:00–24:00 Kyiv time), issued as of 00:00 from data up "
+         f"to {out.data_snapshot_utc.iloc[0]} UTC.", "",
+         "| City | Median, h | 80% interval, h | Alert at 00:00 | Yesterday, h | Test MAE, h | Test coverage |",
+         "|---|---|---|---|---|---|---|"]
+    for _, r in out.iterrows():
+        L.append(f"| {CITY_EN[r.city]} | **{r.q50_h:.1f}** | {r.q10_h:.1f} – {r.q90_h:.1f} | "
+                 f"{'yes' if r.alert_running_at_00 else 'no'} | {r.hours_yesterday:.1f} | {r.test_MAE_h:.2f} | "
+                 f"{r.test_coverage80:.0%} |")
+    worse = k.test_MAE_h >= k.best_baseline_test_MAE_h
+    L += ["", "**How far to trust it.** For Kyiv the model is "
+          + ("not better than the best simple baseline" if worse else "only slightly better than the best simple baseline")
+          + f" ({k.test_MAE_h:.1f} vs {k.best_baseline_test_MAE_h:.1f} h mean error), so read the interval, not the "
+          "point. This is a statistical forecast, not a threat warning."]
     return "\n".join(L)
 
 

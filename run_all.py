@@ -4,7 +4,7 @@
     python run_all.py --latest   # download the newest data, re-pin it, rebuild everything
 
 Both modes regenerate results/, reports/, figures/ and the auto-generated blocks of README.md
-(forecast for the next day, data dates) and REPORT.md (data dates, facts, test results).
+(forecast for the next day, data dates), README.en.md (forecast) and REPORT.md (data dates, facts, test results).
 """
 import argparse
 import time
@@ -55,6 +55,7 @@ def main():
     def blocks():
         data = forecast.data_markdown()
         readme.update_blocks({"FORECAST": forecast.markdown(fc), "DATA": data}, ROOT / "README.md")
+        readme.update_blocks({"FORECAST_EN": forecast.markdown_en(fc)}, ROOT / "README.en.md")
         readme.update_blocks({"DATA": data, "RESULTS": forecast.results_markdown(),
                               "FACTS": stats.markdown(stats.main())}, ROOT / "REPORT.md")
     step("README + REPORT auto blocks", blocks)

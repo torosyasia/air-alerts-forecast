@@ -48,11 +48,11 @@ AI agents.
 
 | City | Median, h | 80% interval, h | Alert at 00:00 | Yesterday, h | Test MAE, h | Test coverage |
 |---|---|---|---|---|---|---|
-| Kyiv | **4.9** | 0.0 – 11.4 | no | 5.4 | 4.30 | 79% |
-| Kharkiv | **15.5** | 9.6 – 20.1 | yes | 14.7 | 2.38 | 86% |
-| Dnipro | **6.4** | 3.5 – 9.9 | yes | 8.4 | 2.36 | 79% |
+| Kyiv | **6.2** | 2.2 – 11.0 | no | 5.4 | 4.22 | 71% |
+| Kharkiv | **15.3** | 6.8 – 21.6 | yes | 14.7 | 2.44 | 100% |
+| Dnipro | **6.0** | 2.0 – 11.6 | yes | 8.4 | 2.29 | 79% |
 
-**How far to trust it.** For Kyiv the model is not better than the best simple baseline (4.3 vs 4.3 h mean error), so read the interval, not the point. This is a statistical forecast, not a threat warning.
+**How far to trust it.** For Kyiv the model is only slightly better than the best simple baseline (4.2 vs 4.3 h mean error), so read the interval, not the point. This is a statistical forecast, not a threat warning.
 <!-- FORECAST_EN:END -->
 
 **How it was done: a human + AI agents.**

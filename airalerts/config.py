@@ -144,7 +144,13 @@ ALL_CITIES = {
     "cherkasy": _centre("cherkasy", "Черкаси", "Черкаська область", "Черкаський район", "Черкаська"),
     "chernivtsi": _centre("chernivtsi", "Чернівці", "Чернівецька область", "Чернівецький район", "Чернівецька"),
     "chernihiv": _centre("chernihiv", "Чернігів", "Чернігівська область", "Чернігівський район", "Чернігівська"),
+    # Kyiv oblast has no centre of its own (it is Kyiv City, a separate unit): its largest city
+    # stands in for it on the map, with the same covering rule.
+    "bila_tserkva": _centre("bila_tserkva", "Біла Церква", "Київська область", "Білоцерківський район",
+                            "Білоцерківська"),
 }
+# Cities that stand in for an oblast whose centre is modelled separately
+OBLAST_REPRESENTATIVE = {"Київська область": "bila_tserkva"}
 OCCUPIED_CENTRES = {"Донецька область": "Донецьк", "Луганська область": "Луганськ",
                     "Автономна Республіка Крим": "Сімферополь", "м. Севастополь": "Севастополь"}
 

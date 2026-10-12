@@ -11,7 +11,7 @@ import subprocess
 import numpy as np
 import pandas as pd
 
-from .config import ALL_CITIES, OCCUPIED_CENTRES, ROOT
+from .config import ALL_CITIES, OBLAST_REPRESENTATIVE, OCCUPIED_CENTRES, ROOT
 
 DOCS = ROOT / "docs"
 GEO_URL = ("https://media.githubusercontent.com/media/wmgeolab/geoBoundaries/9469f09/releaseData/gbOpen/UKR/ADM1/"
@@ -79,31 +79,38 @@ def _f(x, nd=2):
     return None if x is None or (isinstance(x, float) and not np.isfinite(x)) else round(float(x), nd)
 
 
-def map_data(fc, ct, change, recent, checks, series, s_first, s_last, main):
+def map_data(fc, ct, change, cchange, recent, checks, series, s_first, s_last, main):
     """docs/data/map_data.json: everything the page shows, keyed by oblast name."""
-    by_oblast = {c.oblast_uk: k for k, c in ALL_CITIES.items()}
+    by_oblast = {c.oblast_uk: k for k, c in ALL_CITIES.items() if k not in OBLAST_REPRESENTATIVE.values()}
+    by_oblast.update(OBLAST_REPRESENTATIVE)
     ch = change.set_index("oblast")
+    cc = cchange.set_index("city")
     obl = {}
     names = list(EN_UK.values())
     for ob in names:
         r = {"oblast": ob}
-        key = by_oblast.get(ob) or ("kyiv" if ob == "Київська область" else None)
+        key = by_oblast.get(ob)
         if ob in OCCUPIED_CENTRES:
             r.update(status="occupied", centre=OCCUPIED_CENTRES[ob],
                      note=f"Обласний центр ({OCCUPIED_CENTRES[ob]}) під окупацією: не рахуємо.")
         if ob in ch.index and ob not in ("Автономна Республіка Крим", "м. Севастополь"):
             c = ch.loc[ob]
-            r["change"] = {"alerts_before": _f(c.alerts_per_day_before), "alerts_after": _f(c.alerts_per_day_after),
-                           "hours_before": _f(c.hours_per_day_before), "hours_after": _f(c.hours_per_day_after),
-                           "alerts_ratio": _f(c.alerts_ratio), "hours_ratio": _f(c.hours_ratio),
-                           "share_before": _f(c.share_of_day_under_alert_before),
-                           "saturated": bool(c.share_of_day_under_alert_before >= 0.6),
-                           "p_alerts_more": _f(c.p_alerts_more_mw, 3)}
+            # whole oblast, any alert (fig9 method): official channel only, so 27.08-06.09
+            r["oblast_any"] = {"alerts_before": _f(c.alerts_per_day_before), "alerts_after": _f(c.alerts_per_day_after),
+                               "hours_before": _f(c.hours_per_day_before), "hours_after": _f(c.hours_per_day_after),
+                               "hours_ratio": _f(c.hours_ratio), "share_before": _f(c.share_of_day_under_alert_before),
+                               "saturated": bool(c.share_of_day_under_alert_before >= 0.6)}
         if key and ob not in OCCUPIED_CENTRES:
             f = fc.set_index("city").loc[key]
             t = ct.set_index("city").loc[key]
             rc = recent.set_index("city").loc[key]
             chk = checks.set_index("city").loc[key]
+            x = cc.loc[key]
+            # the centre's own target, same comparison as the README (60 days before 27.08 vs after)
+            r["change"] = {"hours_before": _f(x.hours_before), "hours_after": _f(x.hours_after),
+                           "delta": _f(x.hours_delta), "ratio": _f(x.hours_ratio),
+                           "alerts_before": _f(x.alerts_before), "alerts_after": _f(x.alerts_after),
+                           "window": x.window}
             r.update(status="ok", city=key, centre=ALL_CITIES[key].name_uk,
                      forecast={"q10": _f(f.q10_h, 1), "q50": _f(f.q50_h, 1), "q90": _f(f.q90_h, 1),
                                "alert_at_00": bool(f.alert_running_at_00), "yesterday": _f(f.hours_yesterday, 1)},
@@ -118,9 +125,12 @@ def map_data(fc, ct, change, recent, checks, series, s_first, s_last, main):
                               "alerts_sep": _f(rc.alerts_sep), "alerts_oct": _f(rc.alerts_oct),
                               "growth": bool(rc.october_growth)},
                      issues=chk.issues or "")
-            if ob == "Київська область":
-                r["note"] = "Обласний центр — м. Київ (окрема одиниця на карті): прогноз і 30 днів — за Києвом."
-            if key in DEEP and ob != "Київська область":
+            if ob in OBLAST_REPRESENTATIVE:
+                r["representative"] = True
+                r["note"] = (f"Обласний центр — м. Київ (окрема одиниця на карті). Для області показано місто-"
+                             f"представника — {ALL_CITIES[key].name_uk} ({ALL_CITIES[key].raion_uk}), "
+                             "за тим самим правилом покриття.")
+            if key in DEEP:
                 r["deep"] = {"role": DEEP[key][0], "link": REPO + DEEP[key][1]}
         if ob in ("Автономна Республіка Крим", "м. Севастополь"):
             r.setdefault("note", "Тимчасово окупована територія: даних про тривоги немає.")
@@ -128,7 +138,8 @@ def map_data(fc, ct, change, recent, checks, series, s_first, s_last, main):
     snap = fc.data_snapshot_utc.iloc[0]
     data = {"generated": {"data_snapshot_utc": snap, "last_full_day": str(s_last), "forecast_for": str(fc.forecast_for.iloc[0]),
                           "series_from": str(s_first), "series_to": str(s_last), "model": main,
-                          "change_window": "60 днів до 27.08 проти 27.08–06.09 (без 29.08–02.09)",
+                          "oblast_any_window": "уся область, будь-яка тривога; офіційний канал: 60 днів до 27.08 "
+                                               "проти 27.08–06.09 (без 29.08–02.09)",
                           "october_window": "01.10 – останній день проти 07.09–30.09"},
             "oblasts": obl}
     (DOCS / "data").mkdir(parents=True, exist_ok=True)
@@ -155,7 +166,7 @@ def preview(data, geo):
         for poly in polys:
             ring = np.array(poly[0])
             ax.add_patch(Polygon(np.c_[ring[:, 0] * k, ring[:, 1]], closed=True, fc=col, ec=edge, lw=0.6))
-        if v is not None and f["properties"]["name"] != "Київська область":
+        if v is not None:
             ring = np.array(polys[0][0])
             cx, cy = ring[:, 0].mean() * k, ring[:, 1].mean()
             ax.text(cx, cy, f"{v:.0f}", color="white", ha="center", va="center", fontsize=8, fontweight="bold")
@@ -169,7 +180,7 @@ def preview(data, geo):
     plt.close(fig)
 
 
-def report(m, main, per, ct, change, recent, checks):
+def report(m, main, per, ct, change, cchange, recent, checks):
     from .national_models import NAMES
     nm = {k: c.name_uk for k, c in ALL_CITIES.items()}
     pool = m[m.city == "pooled"].copy()
@@ -193,7 +204,11 @@ def report(m, main, per, ct, change, recent, checks):
          ctt.round(2).to_markdown(index=False), "",
          f"Модель краща за MAE у {int(ct.model_beats_baseline_MAE.sum())} з {len(ct)} міст, "
          f"за interval score — у {int(ct.model_beats_baseline_IS.sum())} з {len(ct)}.", "",
-         "## 4. Зміна після 27.08 по областях (метод fig9: будь-яка тривога в області, офіційний канал)", "",
+         "## 4. Зміна після 27.08", "",
+         "**Обласні центри** — та сама ціль і те саме порівняння, що для Києва в README (60 днів до 27.08 "
+         "проти 27.08 – остання доба, пропущені дні не рахуються). Цим шаром фарбується карта (приріст годин).", "",
+         cchange.assign(місто=cchange.city.map(nm)).round(2).to_markdown(index=False), "",
+         "**Уся область, будь-яка тривога** (метод fig9, офіційний канал, тому «після» = 27.08–06.09):", "",
          change.round(3).to_markdown(index=False), "",
          "## 5. Жовтень проти 07.09–30.09 (одне джерело — alerts.in.ua; Київ — KMDA)", "",
          rc.round(3).to_markdown(index=False), "",
@@ -204,7 +219,7 @@ def report(m, main, per, ct, change, recent, checks):
 
 def main():
     from .config import RESULTS
-    from .national import build_targets, load_national, recent_layers, thirty_day_series
+    from .national import build_targets, change_after_break, load_national, recent_layers, thirty_day_series
     from .national_models import build_features_all, city_table, forecast_next_day_all, run
     from .neighbours import analyse, load
     _, _, checks = build_targets()
@@ -218,12 +233,14 @@ def main():
     change.round(4).to_csv(RESULTS / "national_oblast_change.csv", index=False)
     _, daily = load_national()
     recent = recent_layers(daily)
+    cchange = change_after_break(daily)
+    cchange.round(4).to_csv(RESULTS / "national_centre_change.csv", index=False)
     recent.round(4).to_csv(RESULTS / "national_recent.csv", index=False)
     series, s_first, s_last = thirty_day_series(daily)
     geo = prepare_geojson()
-    data = map_data(fc, ct, change, recent, checks, series, s_first, s_last, main_model)
+    data = map_data(fc, ct, change, cchange, recent, checks, series, s_first, s_last, main_model)
     preview(data, geo)
-    report(m, main_model, per, ct, change, recent, checks)
+    report(m, main_model, per, ct, change, cchange, recent, checks)
     return fc
 
 

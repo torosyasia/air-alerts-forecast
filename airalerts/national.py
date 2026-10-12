@@ -106,6 +106,27 @@ def recent_layers(daily, n_days=30):
     return t
 
 
+BREAK = pd.Timestamp("2026-08-27").date()
+
+
+def change_after_break(daily, before_days=60):
+    """Per city, the same comparison as for Kyiv in the README / reports/regimes.md: mean hours
+    and alerts per day in the 60 days before 27.08 vs 27.08 - last day (missing days left out)."""
+    lo = (pd.Timestamp(BREAK) - pd.Timedelta(days=before_days)).date()
+    rows = []
+    for key, d in daily.groupby("city"):
+        b = d[(d.date >= lo) & (d.date < BREAK)].dropna(subset=["hours"])
+        a = d[d.date >= BREAK].dropna(subset=["hours"])
+        hb, ha = b.hours.mean(), a.hours.mean()
+        rows.append({"city": key, "hours_before": hb, "hours_after": ha, "hours_delta": ha - hb,
+                     "hours_ratio": ha / hb if hb > 0 else np.nan,
+                     "alerts_before": b.n_episodes.mean(), "alerts_after": a.n_episodes.mean(),
+                     "days_before": len(b), "days_after": len(a),
+                     "window": f"{lo:%d.%m}–{(BREAK - pd.Timedelta(days=1)):%d.%m} проти "
+                               f"{BREAK:%d.%m}–{d.date.max():%d.%m}"})
+    return pd.DataFrame(rows)
+
+
 def thirty_day_series(daily, n_days=30):
     last = daily.date.max()
     first = (pd.Timestamp(last) - pd.Timedelta(days=n_days - 1)).date()

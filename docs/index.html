@@ -146,7 +146,7 @@
   });
   feats.forEach(f => {
     const name = f.properties.name, o = O[name] || {}, c = centroid(f);
-    const dy = name === "м. Київ" ? -16 : 6;
+    const dy = name === "м. Київ" ? -16 : name === "Київська область" ? 30 : 6;
     const t = el("text", { x: c[0], y: c[1] + dy, class: "lbl" }); svg.appendChild(t); labels[name] = t;
     if (o.deep) svg.appendChild(el("circle", { cx: c[0], cy: c[1] + (name === "м. Київ" ? 0 : 16), r: 6, class: "star" }));
   });
@@ -215,7 +215,7 @@
     if (o.change) {
       const c = o.change, sign = c.delta >= 0 ? "+" : "−";
       h += `<div class="row"><h3>Зміна після 27.08 · ${o.centre}</h3>
-        <div>Годин на добу: ${c.hours_before} → ${c.hours_after} (${sign}${Math.abs(c.delta)} год; ${fmtR(c.ratio)}); тривог: ${c.alerts_before} → ${c.alerts_after}.</div>
+        <div>Годин на добу: ${c.hours_before.toFixed(2)} → ${c.hours_after.toFixed(2)} (${sign}${Math.abs(c.delta).toFixed(2)} год; ${fmtR(c.ratio)}); тривог: ${c.alerts_before.toFixed(2)} → ${c.alerts_after.toFixed(2)}.</div>
         <div class="note">Вікно: ${c.window} — те саме порівняння, що в README.</div></div>`;
     }
     if (o.oblast_any) {

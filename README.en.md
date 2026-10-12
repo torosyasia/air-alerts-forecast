@@ -44,28 +44,33 @@ statistics and a forecast, not live alerts.
 |---|---|
 | Kyiv alert hours per day: 60 days before → after 27 Aug | **1.70 → 8.09** |
 | Separate alerts per day | 2.1 → 7.3 (about 80% of the rise in hours) |
-| Increase in alert hours per day, oblast centres | Kyiv +6.4, Bila Tserkva +7.0, Cherkasy +6.2, Chernihiv +9.6; west up only from a tiny base; Kharkiv −1.9, Sumy −2.6 |
+| Alert hours per day right after the break (27 Aug – 5 Sep, before the reform) | Kyiv 1.7 → 9.4, Bila Tserkva 1.1 → 6.7, Cherkasy 2.4 → 10.0, and the jump holds; the west grew from a tiny base, mostly after 6 Sep; Kharkiv 18.5 → 17.6 |
 | Kyiv since 6 Sep: yellow (drone) level | 7.1 of 7.7 alert hours per day (~92%) |
-| October vs September | significantly more alerts only in Dnipro and Rivne, out of 23 cities |
+| October vs September (11 days) | significantly more alerts only in Dnipro and Rivne, out of 23 cities; no wider wave detected |
 | Forecast, 23 cities: shared model vs best simple baseline | mean error 2.14 vs 2.31 h; interval score 10.75 vs 10.50; coverage 0.82 |
 | Kyiv: model vs "same as yesterday" | 4.22 vs 4.29 h |
 
 **The model in two steps.**
 - **v1:** separate models for 3 cities. For Kyiv it was no better than "same as yesterday",
-  and its median was too low, because there were only ~32 days of the new regime.
-- **v2:** one shared model for 23 cities with a per-city base level. It had ~20× more
-  new-regime data and is the first to beat the best simple baseline for Kyiv.
+  and its median was too low by 2.5 h on average, with only 32 days of the new regime.
+- **v2:** one shared model for 23 cities with a per-city base level, trained on 626 new-regime
+  city-days. Its main gain is honest intervals: coverage 0.82 against 0.71 for separate
+  models, at almost the same mean error (2.14 vs 2.10 h).
+- **Kyiv.** v2 is slightly better than the best simple baseline: 4.22 vs 4.29 h. That is a
+  noise-sized gap on 14 days.
 
 A global model makes sense here: there are many series, each with little history of the new
-regime. It works in the centre and the active rear (Dnipro 2.29 vs 2.92 h) and fails on the
-front (Chernihiv 3.28 vs 2.07 h), where "same as yesterday" is almost perfect.
+regime. By mean error it beats the best simple baseline in 11 of 23 cities, mostly in the
+centre and the rear (Dnipro 2.29 vs 2.92 h). It loses on the front (Chernihiv 3.28 vs 2.07 h),
+where "same as yesterday" is almost perfect.
 
 **Why it matters.**
 - **For the city.** Under resolution No 1092, at the yellow level businesses may keep working
   if they have a shelter, and the Kyiv metro runs fully. So in Kyiv these rules now cover
   ~92% of alert time.
 - **For forecasting.** Models trained on one city's history break exactly at a regime
-  change. More new-regime data (v2) and fast change detection help.
+  change. A shared model over many cities gave more honest intervals. The next step is
+  detecting the change fast.
 - **For data.** The open dataset of the official channel silently stopped after 7 Sep, and
   the channel had an outage on 29 Aug – 2 Sep. Volunteer data missed long alerts. We built a
   checked series from three cross-validated sources.

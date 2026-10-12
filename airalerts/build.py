@@ -39,14 +39,14 @@ def clip(df, lo=None, hi=None):
     return d
 
 
-def segments(official, archive, kmda, archive_snapshot):
+def segments(official, archive, kmda, archive_snapshot, cities=None):
     """Which source covers which time range, per city. Returns {city: [(source_df, lo, hi)]}."""
     kmda_cut = kmda_to_archive_cut()          # pinned with the snapshot, not derived from the data
     archive_cut = OFFICIAL_TO_ARCHIVE_CUT.tz_convert("UTC")
     assert ARCHIVE_COMPLETE_FROM < archive_cut < OFFICIAL_COMPLETE_UNTIL
     assert kmda_cut > ARCHIVE_COMPLETE_FROM
     seg = {}
-    for key, city in CITIES.items():
+    for key, city in (cities or CITIES).items():
         arc = archive[archive.city == key]
         if city.kyiv_kmda:
             seg[key] = [("kmda", kmda, None, kmda_cut.tz_convert("UTC")),
@@ -57,10 +57,11 @@ def segments(official, archive, kmda, archive_snapshot):
     return seg
 
 
-def build():
-    fetch_pinned()
-    official, st_off = load_official()
-    archive, st_arc = load_archive()
+def prepare(cities=None):
+    """Load the three sources for `cities` and apply the common cleaning (D-06a, D-07)."""
+    cities = cities or CITIES
+    official, st_off = load_official(cities)
+    archive, st_arc = load_archive(cities)
     kmda, st_kmda = load_kmda()
     snap = st_arc["snapshot_utc"]
     last_full_day = (local_midnight(snap) - pd.Timedelta(days=1)).date()
@@ -69,7 +70,7 @@ def build():
     imputed = official[official.imputed_end]
     official = official[~official.imputed_end]
     # only imputed rows inside the period where a city actually uses the official CSV matter
-    uses_official = [k for k, c in CITIES.items() if not c.kyiv_kmda]
+    uses_official = [k for k, c in cities.items() if not c.kyiv_kmda]
     imputed = imputed[imputed.city.isin(uses_official)
                       & (imputed.started_at < OFFICIAL_TO_ARCHIVE_CUT.tz_convert("UTC"))]
     # channel outages: an alert open when the channel went silent has an unknown end -> cut it
@@ -82,8 +83,13 @@ def build():
         official = official[~((official.started_at >= lo) & (official.started_at < hi))]
     ongoing = archive.finished_at.isna()
     archive.loc[ongoing, "finished_at"] = snap  # truncated at the snapshot; that day is excluded
+    return dict(official=official, archive=archive, kmda=kmda, st_off=st_off, st_arc=st_arc, st_kmda=st_kmda,
+                snap=snap, last_full_day=last_full_day, imputed=imputed, n_cut=n_cut, ongoing=ongoing)
 
-    seg = segments(official, archive, kmda, snap)
+
+def stitch(p, cities=None):
+    """Records and daily target per city from the prepared sources (D-04, D-05)."""
+    seg = segments(p["official"], p["archive"], p["kmda"], p["snap"], cities)
     records, daily = [], []
     for key, parts in seg.items():
         recs = []
@@ -93,9 +99,17 @@ def build():
             recs.append(r)
         recs = pd.concat(recs, ignore_index=True).sort_values("started_at")
         records.append(recs)
-        daily.append(daily_table(key, recs, imputed[imputed.city == key], parts, last_full_day))
-    records = pd.concat(records, ignore_index=True)
-    daily = pd.concat(daily, ignore_index=True)
+        daily.append(daily_table(key, recs, p["imputed"][p["imputed"].city == key], parts, p["last_full_day"]))
+    return pd.concat(records, ignore_index=True), pd.concat(daily, ignore_index=True), seg
+
+
+def build():
+    fetch_pinned()
+    p = prepare()
+    official, archive, kmda, imputed = p["official"], p["archive"], p["kmda"], p["imputed"]
+    st_off, st_arc, st_kmda, n_cut, ongoing = p["st_off"], p["st_arc"], p["st_kmda"], p["n_cut"], p["ongoing"]
+    last_full_day = p["last_full_day"]
+    records, daily, seg = stitch(p)
 
     PROCESSED.mkdir(parents=True, exist_ok=True)
     records.to_csv(PROCESSED / "city_records.csv", index=False)

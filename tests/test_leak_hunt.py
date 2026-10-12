@@ -48,13 +48,13 @@ def build_as_of(t0, running_end, truncate_kmda=True):
     """Run build.build() on raw data as it existed at t0. Writes only to a temp dir."""
     orig = (B.load_official, B.load_archive, B.load_kmda, B.fetch_pinned, B.PROCESSED, B.REPORTS, B.RESULTS)
 
-    def official():
+    def official(*_):
         d, st = S.load_official()
         d = _truncate(d, t0, running_end)
         d["imputed_end"] = (d.finished_at - d.started_at).dt.total_seconds() == IMPUTED_DURATION_S
         return d, st
 
-    def archive():
+    def archive(*_):
         d, st = S.load_archive()
         st["snapshot_utc"] = t0 + pd.Timedelta(minutes=1)
         return _truncate(d, t0, running_end, keep_open=True), st

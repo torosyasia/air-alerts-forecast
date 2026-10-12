@@ -108,6 +108,46 @@ CITIES = {
                                  "Львівська територіальна громада", "м. Львів")),
 }
 
+# All oblast centres on government-controlled territory, for the all-Ukraine map and the
+# shared forecast model (airalerts/national.py). Same covering rule as above: the oblast, the
+# raion that contains the city, the city hromada (official CSV) or the city / hromada units
+# (alerts.in.ua archive). Names were checked against both sources. The four cities above are
+# reused unchanged. Centres under occupation are not modelled (OCCUPIED_CENTRES).
+def _centre(key, name, oblast, raion, hromada_adj=None):
+    titles = (oblast, raion, f"м. {name}") + ((f"{hromada_adj} територіальна громада",) if hromada_adj else ())
+    return City(key, name, oblast, raion, f"м. {name} та", forecast=True, archive_titles=titles)
+
+
+ALL_CITIES = {
+    "kyiv": CITIES["kyiv"],
+    "kharkiv": CITIES["kharkiv"],
+    "dnipro": CITIES["dnipro"],
+    "lviv": CITIES["lviv"],
+    "vinnytsia": _centre("vinnytsia", "Вінниця", "Вінницька область", "Вінницький район", "Вінницька"),
+    "lutsk": _centre("lutsk", "Луцьк", "Волинська область", "Луцький район", "Луцька"),
+    "zhytomyr": _centre("zhytomyr", "Житомир", "Житомирська область", "Житомирський район", "Житомирська"),
+    "uzhhorod": _centre("uzhhorod", "Ужгород", "Закарпатська область", "Ужгородський район", "Ужгородська"),
+    "zaporizhzhia": _centre("zaporizhzhia", "Запоріжжя", "Запорізька область", "Запорізький район", "Запорізька"),
+    "ivano_frankivsk": _centre("ivano_frankivsk", "Івано-Франківськ", "Івано-Франківська область",
+                               "Івано-Франківський район", "Івано-Франківська"),
+    "kropyvnytskyi": _centre("kropyvnytskyi", "Кропивницький", "Кіровоградська область", "Кропивницький район",
+                             "Кропивницька"),
+    "mykolaiv": _centre("mykolaiv", "Миколаїв", "Миколаївська область", "Миколаївський район", "Миколаївська"),
+    "odesa": _centre("odesa", "Одеса", "Одеська область", "Одеський район", "Одеська"),
+    "poltava": _centre("poltava", "Полтава", "Полтавська область", "Полтавський район", "Полтавська"),
+    "rivne": _centre("rivne", "Рівне", "Рівненська область", "Рівненський район", "Рівненська"),
+    "sumy": _centre("sumy", "Суми", "Сумська область", "Сумський район", "Сумська"),
+    "ternopil": _centre("ternopil", "Тернопіль", "Тернопільська область", "Тернопільський район", "Тернопільська"),
+    "kherson": _centre("kherson", "Херсон", "Херсонська область", "Херсонський район", "Херсонська"),
+    "khmelnytskyi": _centre("khmelnytskyi", "Хмельницький", "Хмельницька область", "Хмельницький район",
+                            "Хмельницька"),
+    "cherkasy": _centre("cherkasy", "Черкаси", "Черкаська область", "Черкаський район", "Черкаська"),
+    "chernivtsi": _centre("chernivtsi", "Чернівці", "Чернівецька область", "Чернівецький район", "Чернівецька"),
+    "chernihiv": _centre("chernihiv", "Чернігів", "Чернігівська область", "Чернігівський район", "Чернігівська"),
+}
+OCCUPIED_CENTRES = {"Донецька область": "Донецьк", "Луганська область": "Луганськ",
+                    "Автономна Республіка Крим": "Сімферополь", "м. Севастополь": "Севастополь"}
+
 # Gap (seconds) below which two alert records are treated as one episode when counting
 # episodes. A change of threat level is a new record with no "all clear" in between.
 EPISODE_GAP_S = 60
